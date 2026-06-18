@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Admin - Wishlist Premium</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-color: #F8FAFC;
+      --panel-bg: rgba(255, 255, 255, 0.85);
+      --primary: #F26422; /* Coral Olist */
+      --primary-hover: #E04E0C;
+      --secondary: #002244; /* Marinho Olist */
+      --text: #1E293B; /* Slate 800 */
+      --text-light: #64748B; /* Slate 500 */
+      --border: #E2E8F0;
+      --border-focus: rgba(242, 100, 34, 0.4);
+      --glass-glow: 0 10px 30px rgba(0, 34, 68, 0.04);
+      --success: #10B981;
+      --accent: #E53935;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(242, 100, 34, 0.04) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(0, 34, 68, 0.03) 0px, transparent 50%);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 15px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 40px 20px;
+      flex: 1;
+    }
+
+    /* Tela de Login */
+    #login-view {
+      max-width: 420px;
+      margin: 100px auto;
+      width: 100%;
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .login-header h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      color: var(--secondary);
+      font-weight: 700;
+    }
+
+    .login-header p {
+      font-size: 14px;
+      color: var(--text-light);
+      margin-top: 6px;
+    }
+
+    /* Painel Principal (Dashboard) */
+    #dashboard-view {
+      display: none;
+    }
+
+    header {
+      margin-bottom: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+    }
+
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--secondary);
+      letter-spacing: -0.5px;
+    }
+
+    .badge-admin {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      background: rgba(242, 100, 34, 0.08);
+      border: 1px solid rgba(242, 100, 34, 0.2);
+      padding: 6px 16px;
+      border-radius: 30px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Cards premium com Glassmorphism */
+    .card {
+      background: var(--panel-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: var(--glass-glow);
+      margin-bottom: 24px;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .card:hover {
+      border-color: rgba(242, 100, 34, 0.2);
+      box-shadow: 0 12px 36px rgba(0, 34, 68, 0.06);
+    }
+
+    h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Grid de Estatísticas */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--glass-glow);
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'Outfit', sans-serif;
+      font-size: 38px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Layout duas colunas */
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    @media (min-width: 992px) {
+      .dashboard-layout {
+        grid-template-columns: 1.4fr 1fr;
+      }
+    }
+
+    /* Inputs e botões */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-light);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      height: 46px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      color: var(--text);
+      padding: 0 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="text"]:focus, input[type="password"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--border-focus);
+    }
+
+    button.btn {
+      width: 100%;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(242, 100, 34, 0.2);
+      transition: all 0.2s;
+    }
+
+    button.btn:hover {
+      background-color: var(--primary-hover);
+      box-shadow: 0 6px 16px rgba(242, 100, 34, 0.3);
+    }
+
+    button.btn-logout {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-light);
+      padding: 8px 16px;
+      font-size: 13px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    button.btn-logout:hover {
+      background: rgba(229, 57, 53, 0.05);
+      border-color: rgba(229, 57, 53, 0.2);
+      color: var(--accent);
+    }
+
+    /* Listas e Tabelas */
+    .search-box {
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 12px 16px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    td {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    tr:hover td {
+      background: rgba(0, 34, 68, 0.01);
+    }
+
+    .shop-name-td {
+      font-weight: 600;
+      color: var(--secondary);
+    }
+
+    .product-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .product-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .product-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .product-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .product-img {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .product-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+
+    .product-shop {
+      font-size: 12px;
+      color: var(--text-light);
+      margin-top: 2px;
+    }
+
+    .product-count {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      background: rgba(242, 100, 34, 0.08);
+      border: 1px solid rgba(242, 100, 34, 0.2);
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+
+    .error-msg {
+      background: rgba(229, 57, 53, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(229, 57, 53, 0.15);
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+      text-align: center;
+    }
+
+    /* Mídia de Impressão Relatório PDF (A4) */
+    @media print {
+      body {
+        background: #ffffff !important;
+        background-image: none !important;
+        color: #000000 !important;
+        font-size: 12px !important;
+      }
+      .container {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+      }
+      #login-view, .btn-logout, .badge-admin, .search-box, #btn-copy-bi, header p, .btn-outlined, #btn-copy-bi {
+        display: none !important;
+      }
+      .card {
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        margin-bottom: 40px !important;
+        page-break-inside: avoid !important;
+      }
+      .dashboard-layout {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 20px !important;
+      }
+      table {
+        page-break-inside: auto !important;
+      }
+      tr {
+        page-break-inside: avoid !important;
+        page-break-after: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- TELA DE LOGIN -->
+    <div id="login-view" class="card">
+      <div class="login-header">
+        <h1>Super Admin</h1>
+        <p>Acesse o painel global da Mulino Tech</p>
+      </div>
+
+      <div class="error-msg" id="login-error"></div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label for="username">Usuário (E-mail)</label>
+          <input type="text" id="username" placeholder="exemplo@mulinotech.com" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Senha</label>
+          <input type="password" id="password" placeholder="Sua senha secreta" required>
+        </div>
+        <button type="submit" class="btn" style="margin-top: 8px;">Entrar no Painel</button>
+      </form>
+    </div>
+
+    <!-- TELA DO DASHBOARD GLOBAL -->
+    <div id="dashboard-view">
+      <header>
+        <div>
+          <h1>Painel Geral da Wishlist</h1>
+          <p style="font-size: 14px; color: var(--text-light); margin-top: 4px;">Monitoramento consolidado de todas as lojas instaladas</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <span class="badge-admin">Mulino Tech Admin</span>
+          <button class="btn btn-outlined" onclick="window.print()" style="width: auto; padding: 8px 16px; margin: 0; font-size: 13px; border-radius: 8px;">📄 Exportar PDF</button>
+          <button class="btn-logout" onclick="handleLogout()">Sair</button>
+        </div>
+      </header>
+
+      <!-- Grid de Indicadores -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-shops">0</div>
+          <div class="stat-label">Lojas Instaladas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-favorites">0</div>
+          <div class="stat-label">Favoritos Ativos</div>
+        </div>
+      </div>
+
+      <!-- Card de Integrações e BI -->
+      <div class="card">
+        <h2>🔌 Integração de BI & Rastreamento</h2>
+        <p style="font-size: 13px; color: var(--text-light); margin-bottom: 20px;">Conecte as ferramentas de Business Intelligence da sua agência e acompanhe as automações de pixels.</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+          <div style="border: 1px solid var(--border); padding: 18px; border-radius: 12px; background: rgba(255, 255, 255, 0.5);">
+            <strong style="display: block; font-size: 14px; margin-bottom: 4px; color: var(--secondary);">📊 API de Integração (PowerBI / Looker Studio)</strong>
+            <span style="font-size: 12px; color: var(--text-light); display: block; margin-bottom: 12px;">
+              Copie o endpoint abaixo para importar os dados brutos de favoritos em formato tabular direto no seu PowerBI (Nova Fonte > Web).
+            </span>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="text" id="bi-url-input" readonly style="flex: 1; font-family: monospace; font-size: 12px; height: 38px; background: #f1f5f9; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; outline: none;" value="">
+              <button class="btn" id="btn-copy-bi" onclick="copyBiUrl()" style="width: auto; padding: 0 16px; height: 38px; font-size: 13px; margin: 0; border-radius: 6px;">Copiar URL</button>
+            </div>
+          </div>
+          
+          <div style="border: 1px solid var(--border); padding: 18px; border-radius: 12px; background: rgba(255, 255, 255, 0.5); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <strong style="display: block; font-size: 14px; margin-bottom: 4px; color: var(--secondary);">🎯 Pixels de Remarketing Ativos</strong>
+              <span style="font-size: 12px; color: var(--text-light);">
+                O widget monitora automaticamente e envia o evento <code>AddToWishlist</code> para o Meta/Facebook Pixel e GA4 instalados no e-commerce.
+              </span>
+            </div>
+            <span class="badge-admin" style="background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.2); color: var(--success); text-shadow: none;">Rastreando</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráfico Comparativo -->
+      <div class="card">
+        <h2>📊 Desempenho e Engajamento por Loja</h2>
+        <div style="position: relative; height: 320px; width: 100%;">
+          <canvas id="global-shops-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Layout duas colunas -->
+      <div class="dashboard-layout">
+        <!-- Coluna Esquerda: Tabela de Lojas -->
+        <div class="card">
+          <h2>👥 Lojas Integradas</h2>
+          <div class="search-box">
+            <input type="text" id="search-shop" placeholder="Pesquisar loja por domínio..." oninput="filterShops()">
+          </div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Domínio da Loja</th>
+                  <th>Data de Instalação</th>
+                  <th style="text-align: right;">Total Favoritos</th>
+                </tr>
+              </thead>
+              <tbody id="shops-table-body">
+                <tr>
+                  <td colspan="3" style="text-align: center; color: var(--text-light); padding: 30px;">Carregando lojas...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Coluna Direita: Top 10 Produtos Global -->
+        <div class="card">
+          <h2>🔥 Top 10 Produtos Global</h2>
+          <div class="product-list" id="global-products-list">
+            <p style="text-align: center; color: var(--text-light); padding: 30px;">Carregando produtos...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Recupera o token do localStorage se existir
+    let adminToken = localStorage.getItem('mulino_admin_token');
+    
+    // Elementos da DOM
+    const loginView = document.getElementById('login-view');
+    const dashboardView = document.getElementById('dashboard-view');
+    const loginForm = document.getElementById('login-form');
+    const loginError = document.getElementById('login-error');
+    
+    let allShops = []; // Armazena a lista de lojas para pesquisa
+
+    // Inicialização da Tela
+    if (adminToken) {
+      showDashboard();
+    }
+
+    // Ação de Login
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginError.style.display = 'none';
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const res = await fetch('/api/global/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.token) {
+            localStorage.setItem('mulino_admin_token', data.token);
+            adminToken = data.token;
+            showDashboard();
+          }
+        } else {
+          const errData = await res.json();
+          showError(errData.error || 'Falha ao autenticar.');
+        }
+      } catch (err) {
+        showError('Erro de rede ao conectar com o servidor.');
+      }
+    });
+
+    function showError(message) {
+      loginError.textContent = message;
+      loginError.style.display = 'block';
+    }
+
+    // Exibir Dashboard Geral
+    function showDashboard() {
+      loginView.style.display = 'none';
+      dashboardView.style.display = 'block';
+      
+      // Gera a URL completa de integração do PowerBI contendo o token de autorização
+      document.getElementById('bi-url-input').value = `${window.location.origin}/api/global/export-bi?token=${adminToken}`;
+      
+      loadGlobalData();
+    }
+
+    // Copiar URL de BI
+    function copyBiUrl() {
+      const input = document.getElementById('bi-url-input');
+      input.select();
+      input.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(input.value).then(() => {
+        const btn = document.getElementById('btn-copy-bi');
+        const oldText = btn.textContent;
+        btn.textContent = 'Copiado!';
+        btn.style.background = 'var(--success)';
+        setTimeout(() => {
+          btn.textContent = oldText;
+          btn.style.background = 'var(--primary)';
+        }, 2000);
+      }).catch(err => {
+        console.error('Falha ao copiar URL', err);
+      });
+    }
+
+    // Carregar dados da API do Super Admin
+    async function loadGlobalData() {
+      try {
+        const res = await fetch('/api/global/stats', {
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            // Preenche Indicadores
+            document.getElementById('stat-shops').textContent = data.stats.total_shops;
+            document.getElementById('stat-favorites').textContent = data.stats.total_favorites;
+
+            // Preenche Tabela de Lojas
+            allShops = data.stats.shops || [];
+            renderShopsTable(allShops);
+
+            // Preenche Top 10 Produtos
+            renderTopProducts(data.stats.top_products || []);
+
+            // Renderiza Gráfico Comparativo
+            renderGlobalChart(allShops);
+          }
+        } else {
+          // Token inválido ou expirado
+          handleLogout();
+        }
+      } catch (e) {
+        console.error('Erro ao carregar dados do admin:', e);
+      }
+    }
+
+    // Renderiza a lista de lojas na tabela
+    function renderShopsTable(shops) {
+      const tbody = document.getElementById('shops-table-body');
+      if (shops.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-light);">Nenhuma loja integrada ainda.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      shops.forEach(shop => {
+        const dateFormatted = new Date(shop.created_at).toLocaleDateString('pt-BR');
+        tbody.innerHTML += `
+          <tr>
+            <td class="shop-name-td">${shop.vnda_shop_id}</td>
+            <td>${dateFormatted}</td>
+            <td style="text-align: right; font-weight: 700; color: var(--secondary);">${shop.total_favorites}</td>
+          </tr>
+        `;
+      });
+    }
+
+    // Filtro de lojas na barra de busca
+    function filterShops() {
+      const query = document.getElementById('search-shop').value.toLowerCase().trim();
+      const filtered = allShops.filter(shop => shop.vnda_shop_id.toLowerCase().includes(query));
+      renderShopsTable(filtered);
+    }
+
+    // Renderiza a lista dos produtos mais favoritados globalmente
+    function renderTopProducts(products) {
+      const container = document.getElementById('global-products-list');
+      if (products.length === 0) {
+        container.innerHTML = `<p style="text-align: center; color: var(--text-light); padding: 30px;">Nenhum produto favoritado no momento.</p>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      products.forEach(product => {
+        container.innerHTML += `
+          <div class="product-row">
+            <div class="product-info">
+              <img class="product-img" src="${product.product_image || 'https://via.placeholder.com/48'}" alt="${product.product_name}">
+              <div>
+                <span class="product-name" style="display:block;">${product.product_name}</span>
+                <span class="product-shop">Loja: ${product.shop_domain}</span>
+              </div>
+            </div>
+            <span class="product-count">${product.total} salvos</span>
+          </div>
+        `;
+      });
+    }
+
+    // Instância global do gráfico
+    let globalChartInstance = null;
+
+    function renderGlobalChart(shops) {
+      const ctx = document.getElementById('global-shops-chart');
+      if (!ctx) return;
+
+      if (globalChartInstance) {
+        globalChartInstance.destroy();
+      }
+
+      if (!shops || shops.length === 0) {
+        globalChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: { labels: ['Sem Dados'], datasets: [{ data: [0] }] },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+        return;
+      }
+
+      // Ordena e pega as top 10 lojas por favoritos
+      const topShops = [...shops].sort((a, b) => b.total_favorites - a.total_favorites).slice(0, 10);
+      const labels = topShops.map(s => s.vnda_shop_id);
+      const counts = topShops.map(s => s.total_favorites);
+
+      globalChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Total de Favoritos',
+            data: counts,
+            backgroundColor: 'rgba(242, 100, 34, 0.85)',
+            borderColor: '#F26422',
+            borderWidth: 1,
+            borderRadius: 6,
+            barPercentage: 0.5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: { grid: { display: false } },
+            y: { grid: { display: false }, ticks: { stepSize: 1 } }
+          }
+        }
+      });
+    }
+
+    // Ação de Logout
+    async function handleLogout() {
+      try {
+        await fetch('/api/global/logout', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+      } catch (e) {
+        // Ignora erro de rede no logout
+      }
+      localStorage.removeItem('mulino_admin_token');
+      adminToken = null;
+      dashboardView.style.display = 'none';
+      loginView.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

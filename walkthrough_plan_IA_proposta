@@ -1,0 +1,22 @@
+# Walkthrough - Refatoração Premium da Wishlist (UI/UX)
+
+Todas as melhorias e revisões premium para o frontend da Wishlist foram executadas com sucesso. A aplicação agora segue de perto as diretrizes de experiência de compra modernas e o Design System da Olist.
+
+## Alterações Realizadas
+
+1. **Tokens e Estilos de Design (Olist):**
+   - Substituição de todas as cores e espaçamentos estáticos no [wishlist-widget.css](file:///c:/VNDA_PROJETOS/plugin_wishlist/public/wishlist-widget.css) por variáveis CSS personalizadas (`--oli-color-*`).
+   - Implementação de foco visual acessível (`:focus-visible`) para melhor navegação via teclado nos corações de favoritos.
+
+2. **Micro-interações Premium:**
+   - Adicionada a animação `@keyframes heart-pop` baseada em física de mola elástica (`cubic-bezier(0.175, 0.885, 0.32, 1.275)`), eliminando o clique robótico estático.
+   - Criado efeito físico de colapso de espaço e esmaecimento gradual (`.is-collapsing` com fade e max-height zero) na remoção de cards na página `/wishlist`, prevenindo pulos bruscos no layout (CLS).
+
+3. **Heurísticas Avançadas de E-commerce:**
+   - **Guest Wishlist:** Usuários deslogados agora podem favoritar produtos normalmente. Os itens são salvos de forma persistente no `localStorage` e sincronizados de forma transparente assim que o usuário faz login na loja.
+   - **Ação de Desfazer (Undo):** Ao remover um favorito, a notificação (toast) exibe a opção de "Desfazer". Clicando nela, o favorito é instantaneamente restaurado, tanto na UI quanto no backend/armazenamento.
+
+## Resultados
+- **Experiência de Compra:** Sem barreiras obrigatórias de login imediato.
+- **Micro-animações:** Movimentos sutis e de alta fidelidade visual.
+- **Acessibilidade:** Suporte a leitores de tela com atributos `aria-pressed`, etiquetas semânticas e anéis de foco.

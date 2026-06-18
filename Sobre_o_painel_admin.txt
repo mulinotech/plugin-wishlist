@@ -1,0 +1,98 @@
+SOBRE O PAINEL https://wl.mulinotech.com/admin/index.html?shop=inpyx.cdn.vnda.com.br
+
+A visualização dos dados pelo lojista se dá através de uma associação automática e transparente via Query String (?shop=...) que a plataforma Vnda se encarrega de fazer.
+
+Aqui está o passo a passo de como o dono do e-commerce enxerga a loja dele:
+
+1. Como os dados são salvos (Lado do Cliente)
+Quando você (ou qualquer visitante) favoritou os produtos no site https://inpyx.cdn.vnda.com.br, o nosso widget coletou o domínio atual usando window.location.hostname (que retornou inpyx.cdn.vnda.com.br) e enviou isso para o nosso banco de dados. Ou seja, no banco de dados MySQL do plugin, cada produto favoritado ficou associado ao domínio inpyx.cdn.vnda.com.br.
+
+2. Como o Lojista acessa o Painel
+Quando o dono da loja entra no painel administrativo da Vnda e clica no aplicativo Wishlist, a Vnda abre o nosso painel (https://wl.mulinotech.com/admin) dentro de um iframe, mas com um detalhe crucial: ela automaticamente injeta o domínio da loja na URL. A URL que a Vnda carrega no iframe fica assim: https://wl.mulinotech.com/admin/index.html?shop=inpyx.cdn.vnda.com.br
+
+3. Como o Painel filtra os dados (Lado do Admin)
+O código JavaScript do painel administrativo (admin/index.html) faz o seguinte:
+
+Ele lê a URL e extrai o valor do parâmetro shop (no caso, inpyx.cdn.vnda.com.br).
+Ele faz uma requisição para a nossa API do plugin perguntando: "Plugin, me dê as estatísticas e a lista de produtos favoritados apenas para a loja inpyx.cdn.vnda.com.br".
+
+A nossa API faz a busca filtrada no banco de dados e retorna os dados específicos daquela loja.
+
+💡 E se a loja mudar para um domínio próprio (ex: www.loja-silvia.com.br)?
+Se o lojista configurar um domínio próprio na Vnda, o processo se repete de forma idêntica:
+
+O widget no site passará a salvar os favoritos associados ao domínio www.loja-silvia.com.br.
+A Vnda carregará o iframe do admin passando ?shop=www.loja-silvia.com.br.
+O painel exibirá as estatísticas corretas associadas a esse novo domínio.
+Resumo: O dono do e-commerce enxerga as estatísticas da loja dele porque a Vnda sempre diz ao nosso painel qual é o domínio da loja ativa através da URL do iframe!
+
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+
+
+
+COMO O CLIENTE VÊ OS DADOS TABULADOS
+
+A divisão de acessos e papéis é muito importante! Vou te explicar exatamente quem enxerga o quê nesse fluxo:
+
+1. O Cliente do E-commerce (Você testando na loja)
+Quem é: O usuário final que navega pela loja, clica nos corações e cria a lista.
+O que ele vê: Ele não tem acesso ao painel https://wl.mulinotech.com/admin/ e nem sabe que ele existe. Ele interage apenas no site da loja (na vitrine e na página /p/wishlist). O ID dele é criptografado em um hash SHA-256 para manter a privacidade (LGPD).
+2. O Lojista / Dono do E-commerce (Conta: cliente@mulinotech.com)
+Quem é: O gestor da loja (seu cliente SaaS) que contratou o seu plugin.
+
+O que ele vê: Ele é quem entra na Área do Cliente de vocês (https://wl.mulinotech.com), faz o login e clica no ícone da Wishlist.
+
+Como ele vê os dados da loja dele: No banco de dados do SaaS de vocês, o cadastro da conta cliente@mulinotech.com está vinculado ao domínio da loja dele (inpyx.cdn.vnda.com.br). Quando ele clica no ícone no seu dashboard, o sistema de vocês faz o redirecionamento passando o parâmetro da loja dele na URL: https://wl.mulinotech.com/admin/index.html?shop=inpyx.cdn.vnda.com.br
+
+Ao carregar esse painel, ele verá:
+
+Aba Visão Geral: A lista dos 10 produtos mais favoritados de toda a sua loja (incluindo os que você favoritou no teste).
+Aba Gestão de Clientes: Ele verá uma linha para cada cliente que favoritou produtos (identificado pelo Hash de segurança do e-mail do cliente) e, ao clicar nela, verá a lista de quais produtos aquele cliente específico favoritou.
+3. Integração Direta pelo Painel da Vnda (Olist)
+Para facilitar ainda mais a vida do lojista (para que ele não precise entrar no site de vocês toda vez), a plataforma Vnda permite que o app seja aberto direto pelo painel deles:
+
+O lojista entra no painel da Vnda.
+Clica em Aplicativos > Wishlist Premium.
+A própria Vnda abre a URL https://wl.mulinotech.com/admin/index.html?shop=inpyx.cdn.vnda.com.br dentro de um iframe seguro. O lojista cai direto no painel com os dados da loja dele, sem precisar digitar e-mail e senha de novo, pois a Vnda valida a sessão dele por baixo dos panos!
+
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+
+É exatamente esse o fluxo:
+
+A Vnda cuida do redirecionamento: Quando o dono da loja X clica no seu aplicativo dentro do painel da Vnda, a própria plataforma Vnda se encarrega de abrir o iframe chamando o link: https://wl.mulinotech.com/admin/index.html?shop=loja-do-cliente-x.com.br
+O seu painel filtra automaticamente: O seu código lê esse parâmetro loja-do-cliente-x.com.br, busca no banco de dados apenas os favoritados que pertencem à loja X e exibe para ele.
+Isolamento de dados: O cliente Y nunca verá os dados do cliente X, pois a API filtra estritamente com base no parâmetro shop enviado pelo iframe.
+Esse é o padrão da indústria para aplicativos de e-commerce (como na Shopify, Nuvemshop e Vnda). Parabéns, você compreendeu perfeitamente o funcionamento técnico do ecossistema! 🚀
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+
+
+MARKETING E AUTOMAÇÃO
+
+Essa funcionalidade de "Disparar Lembrete" é uma simulação de Automação de E-mail Marketing baseada em desejo (Wishlist).
+
+Aqui está o que acontece por trás dos panos e como ela se comportaria em um cenário real:
+
+1. O que é e quem "recebe" o alerta na simulação?
+No código atual, quando você clica em disparar, o servidor faz uma consulta no banco de dados:
+
+Ele busca na tabela de favoritos quem são os clientes (customer_hash) que adicionaram aquele produto específico à lista de desejos.
+Ele conta quantos clientes foram encontrados (no seu caso, 2 clientes que favoritaram esse item de teste).
+Nenhum e-mail ou mensagem real é disparada agora, por ser uma simulação (como diz o alerta). O sistema apenas calcula o público-alvo que demonstrou interesse e te dá o feedback de sucesso de que o público foi mapeado.
+
+2. Como isso funcionará em Produção (Cenário Real)?
+Em um ambiente de produção real, esse botão (ou gatilhos automáticos baseados em queda de preço/estoque) estaria integrado via API com plataformas de CRM e E-mail Marketing (como Klaviyo, ActiveCampaign, Mailchimp, RD Station ou a própria régua de comunicação da Vnda/Olist).
+
+O fluxo real seria:
+
+- O lojista clica em "Disparar Lembrete" (ou o sistema detecta que o preço do produto baixou).
+- O plugin busca os e-mails dos clientes vinculados àqueles hashes de favoritos.
+- O plugin envia esses contatos e o produto para a ferramenta de e-mail (ex: ActiveCampaign).
+- O cliente final que favoritou o produto recebe um e-mail personalizado no formato: "Aquele item da sua Lista de Desejos está com 10% de desconto hoje! Aproveite."
+
+Essa seção serve para mostrar ao lojista o poder de conversão do plugin: ele não serve apenas para o cliente salvar produtos, mas também para o lojista criar oportunidades ativas de vendas sabendo exatamente quem quer comprar cada produto!

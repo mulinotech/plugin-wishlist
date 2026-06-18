@@ -1,0 +1,78 @@
+# Plano de Implementação - Gráficos, Exportação em PDF e Guia de BI
+
+Este plano detalha a adição de relatórios visuais por meio de gráficos, a ferramenta de exportação em PDF nativa e o guia de integração passo a passo para conectar as principais ferramentas de BI (PowerBI, Looker Studio, Sheets e Tableau).
+
+## Revisão do Usuário Requerida
+
+> [!NOTE]
+> A exportação em PDF utilizará uma folha de estilo de impressão premium (`@media print`). Quando o usuário clicar em "Exportar PDF", o navegador abrirá a tela de impressão do sistema formatada como um relatório A4 corporativo limpo, permitindo salvar em PDF com alta resolução.
+
+## Alterações Propostas
+
+---
+
+### [Componente: Interface Super Admin]
+
+#### [MODIFY] [global.html](file:///c:/3. MULINO_TECH_PROJETOS/plugin_wishlist/public/admin/global.html)
+- Adicionar a biblioteca de terceiros `Chart.js` via CDN no cabeçalho `<head>`.
+- Inserir um novo card contendo o elemento `<canvas id="global-shops-chart"></canvas>` para exibir o gráfico comparativo de favoritos entre as lojas integradas.
+- Adicionar o botão "📄 Exportar PDF" no cabeçalho ao lado do botão de logout.
+- Adicionar regras CSS de mídia `@media print` para ocultar elementos de interface (como botões, barra de busca e formulário de login) e ajustar as fontes e margens para gerar um PDF impecável de página inteira (A4).
+- Implementar a inicialização do gráfico de barras (`renderGlobalChart`) que atualiza dinamicamente baseado nos dados de lojas recebidos da API `/api/global/stats`.
+
+---
+
+## Guia de Conexão com Ferramentas de BI
+
+Abaixo está o guia passo a passo que o analista de marketing utilizará para carregar os dados brutos:
+
+### 1. Microsoft Power BI
+1. Abra o **Power BI Desktop**.
+2. Clique em **Obter Dados** (Get Data) na barra de ferramentas e selecione **Web**.
+3. No campo URL, cole o link copiado no painel:
+   `https://wl.mulinotech.com/api/global/export-bi?token=SEU_TOKEN`
+4. Deixe a autenticação como **Anônimo** (Anonymous), pois o token de validação já está na URL.
+5. Clique em **Conectar**. O Power BI abrirá o Power Query mostrando a tabela de favoritos limpa e pronta para uso.
+
+### 2. Google Looker Studio
+1. Acesse o [Google Looker Studio](https://lookerstudio.google.com/).
+2. Clique em **Criar > Fonte de Dados**.
+3. Procure por conectores de comunidade para JSON (ex: **JSON Connector** ou conectores web semelhantes).
+4. Insira a URL da API com o token e configure o conector para ler o formato tabular JSON.
+
+### 3. Google Sheets (Planilhas Google)
+1. Crie uma planilha em branco.
+2. Na célula `A1`, use a seguinte fórmula para buscar e converter os dados brutos em tempo real:
+   `=IMPORTDATA("https://wl.mulinotech.com/api/global/export-bi?token=SEU_TOKEN")`
+3. A planilha se manterá atualizada sozinha.
+
+### 4. Tableau
+1. Abra o **Tableau**.
+2. Na barra lateral esquerda de conexões, selecione **Conector de Dados Web (Web Data Connector)**.
+3. Cole a URL da API da Wishlist no prompt e prossiga para carregar a tabela.
+
+---
+
+## Guia de Rastreamento de Pixels (Meta Pixel e GA4)
+
+O rastreamento de eventos de marketing funciona de forma **100% automatizada e invisível (Zero Setup)**.
+
+### Ação necessária do seu lado:
+**Nenhuma ação é necessária.** Desde que a loja de e-commerce já possua o Meta Pixel ou o Google Analytics 4 instalados (seja nativamente pelas configurações da Vnda/Olist ou via Google Tag Manager), o widget detectará os scripts de rastreamento na página (`window.fbq` e `window.gtag`) e disparará os eventos no mesmo instante em que o produto for favoritado.
+
+### Eventos disparados automaticamente:
+1. **Meta/Facebook Pixel:**
+   - **Evento:** `AddToWishlist`
+   - **Parâmetros enviados:**
+     - `content_name`: Nome do produto favoritado.
+     - `content_ids`: Array contendo o ID do produto.
+     - `content_type`: `'product'`.
+     - `value`: Preço do produto.
+     - `currency`: `'BRL'`.
+2. **Google Analytics 4 (GA4):**
+   - **Evento:** `add_to_wishlist`
+   - **Parâmetros enviados (padrão de e-commerce GA4):**
+     - `value`: Preço do produto.
+     - `currency`: `'BRL'`.
+     - `items`: Lista contendo `item_id`, `item_name` e `price`.
+

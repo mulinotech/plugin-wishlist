@@ -1,0 +1,42 @@
+# Plano de Implementação: Auditoria e Refatoração UI/UX Premium da Wishlist
+
+Este plano detalha as alterações no frontend (`wishlist-widget.js` e `wishlist-widget.css`) para blindar o plugin contra "vícios de IA", aplicando as diretrizes de design tokens da Olist, micro-interações dinâmicas e heurísticas avançadas de e-commerce.
+
+## Análise de Problemas Encontrados (Vícios de IA e UX Robótica)
+
+1. **Ausência de Guest Wishlist (Heurística de UX 1):** O script atual força o login imediato em um modal obstrutivo assim que o usuário clica no coração sem estar autenticado, gerando um alto atrito na experiência de navegação.
+2. **Cores e Estilos Hardcoded:** Cores estáticas (`#d93025`, `#000000`) injetadas diretamente sem usar variáveis de tokens ou seguir a paleta semântica oficial da Olist.
+3. **Animações Estáticas:** Transições lineares e sem graça para o botão de favoritos e toasts de notificação, sem curvas elásticas (spring physics).
+4. **Sem Opção de Desfazer (Undo):** A remoção de itens da lista é direta e sem retorno, violando a heurística de prevenção e recuperação de erros.
+5. **Remoção com Saltos Visuais (CLS):** Exclusões de produtos na página `/wishlist` causam saltos secos nos elementos adjacentes devido à falta de uma animação de colapso físico (fade & collapse).
+6. **Falta de Acessibilidade (A11y):** Botões de coração sem foco visível por teclado e aria-labels dinâmicos.
+
+---
+
+## Proposta de Alterações
+
+### [Frontend - Interface da Wishlist]
+
+#### [MODIFY] [wishlist-widget.css](file:///c:/VNDA_PROJETOS/plugin_wishlist/public/wishlist-widget.css)
+- Substituir todas as cores e espaçamentos fixos por CSS Custom Properties (Variáveis CSS) mapeadas conforme a skill `vnda-design-system-tokens`.
+- Adicionar animação `@keyframes heart-pop` baseada em física de mola elástica (`cubic-bezier(0.175, 0.885, 0.32, 1.275)`).
+- Implementar estilos de anéis de foco acessíveis (`:focus-visible`).
+- Adicionar classes para animação de colapso e fade-out dos cards removidos da lista.
+- Refinar o estilo do toast e do modal de forma premium.
+
+#### [MODIFY] [wishlist-widget.js](file:///c:/VNDA_PROJETOS/plugin_wishlist/public/wishlist-widget.js)
+- **Implementar Guest Wishlist:** Permitir adicionar favoritos no `localStorage` caso o cliente não esteja logado. Ao fazer login, sincronizar a lista local com o backend.
+- **Implementar Função de Desfazer (Undo):** Ao remover um favorito, guardar o produto temporariamente e exibir o botão "Desfazer" no toast.
+- **Implementar Remoção Suave (Fade & Collapse):** Substituir a renderização abrupta na página `/wishlist` por uma animação que primeiro reduz a opacidade do card a zero e depois colapsa sua largura/altura suavemente antes de removê-lo do DOM.
+- **Melhorias de Acessibilidade:** Adicionar atributos `aria-pressed` e foco visual por teclado.
+
+---
+
+## Plano de Verificação
+
+### Testes Manuais
+- Testar a adição de favoritos sem login (deve salvar localmente).
+- Testar o fluxo de sincronização fazendo login (deve enviar os salvos localmente para o backend).
+- Testar a animação elástica do coração ao clicar.
+- Remover um item e clicar rapidamente em "Desfazer" para verificar a restauração do produto.
+- Testar a suavidade da exclusão na página de favoritos (`/wishlist`).

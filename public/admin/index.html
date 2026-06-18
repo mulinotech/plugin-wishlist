@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Administrativo - Wishlist Premium</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-color: #F8FAFC;
+      --panel-bg: rgba(255, 255, 255, 0.85);
+      --primary: #F26422; /* Coral Olist */
+      --primary-hover: #E04E0C;
+      --secondary: #002244; /* Marinho Olist */
+      --text: #1E293B; /* Slate 800 */
+      --text-light: #64748B; /* Slate 500 */
+      --border: #E2E8F0;
+      --border-focus: rgba(242, 100, 34, 0.4);
+      --glass-glow: 0 10px 30px rgba(0, 34, 68, 0.04);
+      --success: #10B981;
+      --accent: #E53935;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(242, 100, 34, 0.04) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(0, 34, 68, 0.03) 0px, transparent 50%);
+      color: var(--text);
+      padding: 40px 20px;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+    }
+
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--secondary);
+      letter-spacing: -0.5px;
+    }
+
+    .shop-url {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--secondary);
+      background: rgba(0, 34, 68, 0.05);
+      border: 1px solid rgba(0, 34, 68, 0.1);
+      padding: 6px 16px;
+      border-radius: 30px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    @media (min-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr 1.4fr;
+      }
+    }
+
+    /* Cards premium com Glassmorphism sutil */
+    .card {
+      background: var(--panel-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: var(--glass-glow);
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .card:hover {
+      border-color: rgba(242, 100, 34, 0.2);
+      box-shadow: 0 12px 36px rgba(0, 34, 68, 0.06);
+    }
+
+    h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Formulários e Inputs */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-light);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      height: 46px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      color: var(--text);
+      padding: 0 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="number"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--border-focus);
+    }
+
+    input[type="color"] {
+      width: 100%;
+      height: 46px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="color"]:focus {
+      border-color: var(--primary);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    button.btn {
+      flex: 1;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(242, 100, 34, 0.2);
+      transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+    }
+
+    button.btn:hover {
+      background-color: var(--primary-hover);
+      box-shadow: 0 6px 16px rgba(242, 100, 34, 0.3);
+      transform: translateY(-1px);
+    }
+
+    button.btn:active {
+      transform: translateY(1px);
+    }
+
+    button.btn-outlined {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      box-shadow: none;
+      padding: 12px 24px;
+      font-size: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+
+    button.btn-outlined:hover {
+      background: rgba(0, 34, 68, 0.03);
+      border-color: var(--text-light);
+      transform: translateY(-1px);
+    }
+
+    /* Estatísticas */
+    .stat-large {
+      font-family: 'Outfit', sans-serif;
+      font-size: 44px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 6px;
+      text-shadow: 0 2px 10px rgba(242, 100, 34, 0.1);
+    }
+
+    .stat-desc {
+      font-size: 13px;
+      color: var(--text-light);
+      margin-bottom: 16px;
+    }
+
+    /* Listagem de produtos populares */
+    .product-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .product-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      transition: transform 0.2s;
+    }
+
+    .product-row:hover {
+      transform: translateX(4px);
+    }
+
+    .product-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .product-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .product-img {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .product-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+
+    .product-count {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      background: rgba(242, 100, 34, 0.08);
+      border: 1px solid rgba(242, 100, 34, 0.2);
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+
+    /* FAQ e Suporte */
+    .faq-section {
+      grid-column: 1 / -1;
+      margin-top: 12px;
+    }
+
+    .faq-section code {
+      background: rgba(242, 100, 34, 0.05);
+      border: 1px solid rgba(242, 100, 34, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 13px;
+      color: var(--primary);
+    }
+
+    .faq-step {
+      margin-bottom: 20px;
+    }
+
+    .faq-step:last-child {
+      margin-bottom: 0;
+    }
+
+    .faq-step strong {
+      display: block;
+      font-size: 15px;
+      color: var(--secondary);
+      margin-bottom: 6px;
+    }
+
+    .faq-step p {
+      font-size: 14px;
+      color: var(--text-light);
+      line-height: 1.5;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--success);
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: transform 0.3s, opacity 0.3s;
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.2);
+      z-index: 999;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Abas */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-light);
+      cursor: pointer;
+      padding: 10px 20px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      background: rgba(0, 34, 68, 0.03);
+      color: var(--secondary);
+    }
+
+    .tab-btn.active {
+      background: var(--secondary);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 34, 68, 0.15);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Gestão de Clientes */
+    .customer-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.5);
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .customer-card:hover {
+      border-color: rgba(242, 100, 34, 0.15);
+      box-shadow: 0 6px 18px rgba(0, 34, 68, 0.02);
+    }
+
+    .customer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .customer-hash-title {
+      font-family: monospace;
+      font-size: 13px;
+      color: var(--secondary);
+      background: rgba(0, 34, 68, 0.03);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 6px;
+      max-width: 320px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+
+    .customer-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .customer-items {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+
+    .customer-item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-radius: 8px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+    }
+
+    .btn-danger {
+      background: rgba(229, 57, 53, 0.06);
+      color: var(--accent);
+      border: 1px solid rgba(229, 57, 53, 0.2);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-danger:hover {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(229, 57, 53, 0.2);
+    }
+
+    .stock-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .stock-badge.in-stock {
+      background: rgba(16, 185, 129, 0.08);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.15);
+    }
+
+    .stock-badge.out-of-stock {
+      background: rgba(229, 57, 53, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(229, 57, 53, 0.15);
+    }
+
+    .price-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Painel Administrativo da Wishlist</h1>
+      <span class="shop-url" id="shop-name">Carregando...</span>
+    </header>
+
+
+    <!-- Menu de Abas -->
+    <div class="tabs">
+      <button class="tab-btn active" id="btn-tab-dashboard" onclick="switchTab('dashboard')">📊 Visão Geral</button>
+      <button class="tab-btn" id="btn-tab-customers" onclick="switchTab('customers-tab')">👥 Gestão de Clientes</button>
+      <button class="tab-btn" id="btn-tab-marketing" onclick="switchTab('marketing-tab')">🎯 Marketing & Automação</button>
+    </div>
+
+    <!-- Conteúdo da Aba 1: Dashboard e Configurações -->
+    <div id="dashboard" class="tab-content active">
+      <div class="grid">
+        <!-- Configurações e Estatísticas Gerais -->
+        <div class="grid-col-left">
+          <div class="card" style="margin-bottom: 24px;">
+            <h2>📊 Estatísticas</h2>
+            <div class="stat-large" id="total-favorites">0</div>
+            <div class="stat-desc">Favoritados totais ativos salvos no banco.</div>
+            <button class="btn btn-outlined" id="export-csv-btn" style="width: 100%; font-size: 13px;">📥 Exportar Relatório (CSV)</button>
+          </div>
+
+          <div class="card">
+            <h2>⚙️ Aparência e Retenção</h2>
+            <form id="settings-form">
+              <div class="form-group">
+                <label for="retention-days">Prazo de retenção (dias)</label>
+                <input type="number" id="retention-days" min="1" max="365" value="45" required>
+              </div>
+              
+              <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                <div>
+                  <label for="heart-empty-color">Cor Vazio (Primária)</label>
+                  <input type="color" id="heart-empty-color" value="#888888">
+                </div>
+                <div>
+                  <label for="heart-color">Cor Cheio (Secundária)</label>
+                  <input type="color" id="heart-color" value="#F26422">
+                </div>
+                <div>
+                  <label for="counter-color">Cor do Contador</label>
+                  <input type="color" id="counter-color" value="#002244">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="icon-position">Posição do Ícone na Imagem</label>
+                <select id="icon-position" style="width: 100%; height: 46px; background: #FFFFFF; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; color: var(--text); padding: 0 14px; outline: none; transition: border-color 0.2s; cursor: pointer;">
+                  <option value="top-right">↗️ Superior Direito (Padrão)</option>
+                  <option value="top-left">↖️ Superior Esquerdo</option>
+                  <option value="bottom-right">↘️ Inferior Direito</option>
+                  <option value="bottom-left">↙️ Inferior Esquerdo</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="wishlist-icon">Formato do Ícone</label>
+                <select id="wishlist-icon" style="width: 100%; height: 46px; background: #FFFFFF; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; color: var(--text); padding: 0 14px; outline: none; transition: border-color 0.2s; cursor: pointer;">
+                  <option value="heart">❤️ Coração (Clássico)</option>
+                  <option value="star">⭐ Estrela (Moderno)</option>
+                  <option value="bookmark">🔖 Marcador / Bookmark</option>
+                  <option value="tag">🏷️ Etiqueta / Tag de Preço</option>
+                </select>
+              </div>
+
+              <button type="submit" class="btn">Salvar Alterações</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Painel Direito: Gráficos e Desempenho -->
+        <div class="grid-col-right" style="display: flex; flex-direction: column; gap: 24px;">
+          <!-- Gráfico de Desempenho -->
+          <div class="card">
+            <h2>📈 Desempenho e Engajamento</h2>
+            <div style="position: relative; height: 320px; width: 100%;">
+              <canvas id="favorites-chart"></canvas>
+            </div>
+          </div>
+
+          <!-- Produtos Mais Favoritados -->
+          <div class="card">
+            <h2>🔥 Top 10 Produtos Mais Favoritados</h2>
+            <div class="product-list" id="popular-products">
+              <p class="stat-desc" style="text-align: center; padding: 20px;">Nenhum produto favoritado ainda.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ / Instalação -->
+        <div class="card faq-section">
+          <h2>🚀 Como funciona a Instalação?</h2>
+          
+          <div class="faq-step">
+            <strong>1. Instalação Automática (Recomendado)</strong>
+            <p>Ao aprovar a instalação deste app na Olist/Vnda, nosso servidor automaticamente registra os scripts necessários via API na sua loja. Você não precisa mexer em códigos!</p>
+          </div>
+
+          <div class="faq-step">
+            <strong>2. Criar a Página da Lista de Desejos</strong>
+            <p>No painel da Vnda, acesse <strong>Conteúdo > Páginas > Nova Página</strong>. Defina o título como "Minha Lista de Desejos" e a URL (slug) obrigatoriamente como <code>wishlist</code>. Deixe o conteúdo em branco e salve. O app renderizará toda a lista ali dinamicamente.</p>
+          </div>
+
+          <div class="faq-step">
+            <strong>3. Ícone com Contador no Header</strong>
+            <p>Para adicionar o ícone de coração com contador no seu menu, basta inserir um elemento com a classe CSS <code>wishlist-count</code> onde preferir no seu cabeçalho (por exemplo, ao lado do carrinho de compras). O script atualizará a quantidade favorita dinamicamente.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conteúdo da Aba 2: Gestão de Clientes -->
+    <div id="customers-tab" class="tab-content">
+      <div class="card">
+        <h2>👥 Clientes & Listas de Desejos</h2>
+        <p class="stat-desc" style="margin-bottom: 20px;">Gerencie as listas de desejos ativas dos seus clientes de forma administrativa.</p>
+        <div id="customers-list-container">
+          <p class="stat-desc" style="text-align: center; padding: 20px;">Carregando clientes...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conteúdo da Aba 3: Marketing e Automação -->
+    <div id="marketing-tab" class="tab-content">
+      <div class="card" style="margin-bottom: 24px;">
+        <h2>🎯 Campanhas e Oportunidades de Vendas</h2>
+        <p class="stat-desc" style="margin-bottom: 20px;">Identifique produtos altamente desejados na lista de desejos dos clientes para enviar campanhas promocionais focadas.</p>
+        <div class="product-list" id="marketing-recommendations">
+          <p class="stat-desc" style="text-align: center; padding: 20px;">Nenhum produto favoritado para gerar recomendações.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>⚡ Gatilhos e Automações de Lembrete</h2>
+        <p class="stat-desc">Configure ou teste lembretes automatizados que notificam os clientes em caso de reposição de estoque ou promoção.</p>
+        <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 16px;">
+          <div style="border: 1px solid var(--border); padding: 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="display: block; font-size: 14px;">📉 Alerta de Queda de Preço</strong>
+              <span style="font-size: 12px; color: var(--text-light);">Dispara um e-mail quando o preço do produto diminui em relação ao valor original.</span>
+            </div>
+            <button class="btn btn-outlined" onclick="simulateAlert('Queda de Preço', '123', 'Produto Exemplo')" style="flex: none; width: 140px;">Testar Gatilho</button>
+          </div>
+
+          <div style="border: 1px solid var(--border); padding: 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="display: block; font-size: 14px;">🔄 Alerta de Reposição de Estoque</strong>
+              <span style="font-size: 12px; color: var(--text-light);">Dispara um e-mail quando um item esgotado na wishlist de um cliente volta a ter estoque.</span>
+            </div>
+            <button class="btn btn-outlined" onclick="simulateAlert('Reposição de Estoque', '123', 'Produto Exemplo')" style="flex: none; width: 140px;">Testar Gatilho</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Alterações salvas com sucesso!</div>
+
+  <script>
+    // Recupera a loja conectada via query string (passada pelo OAuth)
+    const urlParams = new URLSearchParams(window.location.search);
+    const shopDomain = urlParams.get('shop') || 'loja-teste.vnda.com.br';
+    document.getElementById('shop-name').textContent = shopDomain;
+
+    // Alternar Abas
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      
+      if (tabId === 'dashboard') {
+        document.getElementById('btn-tab-dashboard').classList.add('active');
+      } else if (tabId === 'customers-tab') {
+        document.getElementById('btn-tab-customers').classList.add('active');
+        loadCustomers();
+      } else if (tabId === 'marketing-tab') {
+        document.getElementById('btn-tab-marketing').classList.add('active');
+      }
+    }
+
+    // Ação do Botão de Exportar CSV
+    document.getElementById('export-csv-btn').addEventListener('click', () => {
+      window.location.href = `/api/settings/export?shop=${shopDomain}`;
+    });
+
+    // Carregar configurações e estatísticas da API
+    async function loadDashboard() {
+      try {
+        const res = await fetch(`/api/settings?shop=${shopDomain}`);
+        if (res.ok) {
+          const data = await res.json();
+          
+          // Configurações
+          document.getElementById('retention-days').value = data.settings.retention_days;
+          document.getElementById('heart-color').value = data.settings.heart_color;
+          document.getElementById('counter-color').value = data.settings.counter_color;
+          document.getElementById('wishlist-icon').value = data.settings.wishlist_icon || 'heart';
+          document.getElementById('heart-empty-color').value = data.settings.heart_empty_color || '#888888';
+          document.getElementById('icon-position').value = data.settings.icon_position || 'top-right';
+          
+          // Total de favoritos
+          document.getElementById('total-favorites').textContent = data.stats.total;
+
+          // Produtos Populares (Dashboard) e Recomendações de Marketing
+          const productsContainer = document.getElementById('popular-products');
+          const marketingContainer = document.getElementById('marketing-recommendations');
+          
+          if (data.stats.mostFavorited && data.stats.mostFavorited.length > 0) {
+            productsContainer.innerHTML = '';
+            marketingContainer.innerHTML = '';
+            
+            data.stats.mostFavorited.forEach(product => {
+              const formattedPrice = (product.currentPrice / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+              const stockStatus = product.inStock 
+                ? `<span class="stock-badge in-stock">Estoque: ${product.stockCount} un.</span>` 
+                : `<span class="stock-badge out-of-stock">Esgotado</span>`;
+              
+              // Renderiza na lista de populares
+              productsContainer.innerHTML += `
+                <div class="product-row">
+                  <div class="product-info">
+                    <img class="product-img" src="${product.product_image || 'https://via.placeholder.com/48'}" alt="${product.product_name}">
+                    <div>
+                      <span class="product-name" style="display:block;">${product.product_name}</span>
+                      <span class="price-text">${formattedPrice}</span> &nbsp; ${stockStatus}
+                    </div>
+                  </div>
+                  <span class="product-count">${product.total} desejos</span>
+                </div>
+              `;
+
+              // Recomendações de Marketing com base em estoque e desejo
+              let actionTitle = '';
+              let actionDesc = '';
+              if (!product.inStock) {
+                actionTitle = 'Reposição Necessária';
+                actionDesc = `${product.total} clientes querem comprar este item esgotado. Notifique-os na reposição!`;
+              } else if (product.total >= 3) {
+                actionTitle = 'Campanha Promocional (Foco em Conversão)';
+                actionDesc = `Item muito desejado (${product.total} salvos). Envie um cupom de 10% para fechar vendas.`;
+              } else {
+                actionTitle = 'Oferecer Frete Grátis';
+                actionDesc = `Impulsione a decisão de compra deste item desejado ativando frete grátis temporário.`;
+              }
+
+              marketingContainer.innerHTML += `
+                <div class="product-row" style="flex-wrap: wrap; gap: 12px; align-items: flex-start;">
+                  <div class="product-info" style="flex: 1; min-width: 250px;">
+                    <img class="product-img" src="${product.product_image || 'https://via.placeholder.com/48'}" alt="${product.product_name}">
+                    <div>
+                      <strong class="product-name" style="display:block; font-size:14px;">${product.product_name}</strong>
+                      <span style="font-size: 12px; color: var(--accent); font-weight:600;">Oportunidade: ${actionTitle}</span>
+                      <p style="font-size:12px; color: var(--text-light); margin-top:4px;">${actionDesc}</p>
+                    </div>
+                  </div>
+                  <button class="btn btn-outlined" onclick="simulateAlert('Oportunidade de Marketing', '${product.product_id}', '${product.product_name.replace(/'/g, "\\'")}')" style="font-size: 12px; padding: 8px 16px; flex: none;">Disparar Lembrete</button>
+                </div>
+              `;
+            });
+
+            // Plota o gráfico com a biblioteca Chart.js
+            renderChart(data.stats.mostFavorited);
+          } else {
+            productsContainer.innerHTML = '<p class="stat-desc" style="text-align: center; padding: 20px;">Nenhum produto favoritado ainda.</p>';
+            marketingContainer.innerHTML = '<p class="stat-desc" style="text-align: center; padding: 20px;">Nenhum produto favoritado para gerar recomendações.</p>';
+            // Reseta gráfico se não houver dados
+            renderChart([]);
+          }
+        }
+      } catch (e) {
+        console.error('Erro ao carregar dados do dashboard:', e);
+      }
+    }
+
+    // Instância global do gráfico para controle de renderização
+    let favoritesChartInstance = null;
+
+    function renderChart(mostFavorited) {
+      const ctx = document.getElementById('favorites-chart');
+      if (!ctx) return;
+
+      if (favoritesChartInstance) {
+        favoritesChartInstance.destroy();
+      }
+
+      if (!mostFavorited || mostFavorited.length === 0) {
+        // Renderiza um estado vazio no gráfico
+        favoritesChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: { labels: ['Sem Dados'], datasets: [{ data: [0] }] },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+        return;
+      }
+
+      const labels = mostFavorited.map(item => {
+        return item.product_name.length > 25 ? item.product_name.substring(0, 25) + '...' : item.product_name;
+      });
+      const counts = mostFavorited.map(item => item.total);
+
+      favoritesChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Quantidade de Desejos',
+            data: counts,
+            backgroundColor: 'rgba(242, 100, 34, 0.85)',
+            borderColor: '#F26422',
+            borderWidth: 1,
+            borderRadius: 6,
+            barPercentage: 0.6
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return ` ${context.raw} favoritos`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                stepSize: 1,
+                font: {
+                  family: 'Inter',
+                  size: 11
+                }
+              }
+            },
+            y: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                font: {
+                  family: 'Inter',
+                  size: 11,
+                  weight: '600'
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Carregar dados de Gestão de Clientes
+    async function loadCustomers() {
+      const container = document.getElementById('customers-list-container');
+      try {
+        const res = await fetch(`/api/settings/customers?shop=${shopDomain}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.customers && data.customers.length > 0) {
+            container.innerHTML = '';
+            data.customers.forEach(customer => {
+              let itemsHtml = '';
+              customer.items.forEach(item => {
+                const formattedPrice = (item.currentPrice / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                const stockBadge = item.inStock 
+                  ? `<span class="stock-badge in-stock">Em estoque (${item.stockCount} un.)</span>` 
+                  : `<span class="stock-badge out-of-stock">Esgotado</span>`;
+                
+                itemsHtml += `
+                  <div class="customer-item-row">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <img src="${item.image || 'https://via.placeholder.com/32'}" style="width:32px; height:32px; object-fit:cover; border-radius:4px;">
+                      <div>
+                        <span style="font-size: 13px; font-weight:500;">${item.name}</span>
+                        <div style="margin-top:2px;">${formattedPrice} &nbsp; ${stockBadge}</div>
+                      </div>
+                    </div>
+                    <button class="btn-danger" onclick="removeCustomerFavorite('${customer.customer_hash}', '${item.id}')">Excluir</button>
+                  </div>
+                `;
+              });
+
+              container.innerHTML += `
+                <div class="customer-card">
+                  <div class="customer-header">
+                    <span class="customer-hash-title" title="${customer.customer_hash}">Cliente: ${customer.customer_hash}</span>
+                    <span class="customer-meta">
+                      <span class="stock-badge in-stock">${customer.total_favorites} itens</span>
+                    </span>
+                  </div>
+                  <div class="customer-items">
+                    ${itemsHtml}
+                  </div>
+                </div>
+              `;
+            });
+          } else {
+            container.innerHTML = '<p class="stat-desc" style="text-align: center; padding: 20px;">Nenhum cliente com itens salvos na lista de desejos.</p>';
+          }
+        }
+      } catch (e) {
+        console.error('Erro ao buscar clientes:', e);
+        container.innerHTML = '<p class="stat-desc" style="text-align: center; color: #dc2626; padding: 20px;">Erro ao carregar lista de clientes.</p>';
+      }
+    }
+
+    // Remover item administrativamente (Gestão de listas)
+    async function removeCustomerFavorite(customerHash, productId) {
+      if (!confirm('Tem certeza de que deseja remover este item da lista de desejos do cliente?')) return;
+      try {
+        const res = await fetch(`/api/settings/customers/remove-favorite?shop=${shopDomain}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            shop: shopDomain,
+            customer_hash: customerHash,
+            product_id: productId
+          })
+        });
+
+        if (res.ok) {
+          showToast('Item removido com sucesso!');
+          loadCustomers();
+          loadDashboard();
+        }
+      } catch (e) {
+        console.error('Erro ao remover item do cliente:', e);
+      }
+    }
+
+    // Simular Envio de Alerta de Marketing/Gatilhos
+    async function simulateAlert(alertType, productId, productName) {
+      try {
+        const res = await fetch(`/api/settings/send-alert?shop=${shopDomain}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            shop: shopDomain,
+            alert_type: alertType,
+            product_id: productId,
+            product_name: productName
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          alert(data.message);
+        }
+      } catch (e) {
+        console.error('Erro ao simular alerta:', e);
+      }
+    }
+
+     // Salvar configurações
+     document.getElementById('settings-form').addEventListener('submit', async (e) => {
+       e.preventDefault();
+       const retentionDays = document.getElementById('retention-days').value;
+       const heartColor = document.getElementById('heart-color').value;
+       const counterColor = document.getElementById('counter-color').value;
+       const wishlistIcon = document.getElementById('wishlist-icon').value;
+       const heartEmptyColor = document.getElementById('heart-empty-color').value;
+       const iconPosition = document.getElementById('icon-position').value;
+ 
+       try {
+         const res = await fetch('/api/settings/save', {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({
+             shop: shopDomain,
+             retention_days: retentionDays,
+             heart_color: heartColor,
+             counter_color: counterColor,
+             wishlist_icon: wishlistIcon,
+             heart_empty_color: heartEmptyColor,
+             icon_position: iconPosition
+           })
+         });
+
+        if (res.ok) {
+          showToast('Alterações salvas com sucesso!');
+          loadDashboard();
+        }
+      } catch (e) {
+        console.error('Erro ao salvar configurações:', e);
+      }
+    });
+
+    function showToast(message = 'Alterações salvas com sucesso!') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Inicialização
+    loadDashboard();
+  </script>
+</body>
+</html>

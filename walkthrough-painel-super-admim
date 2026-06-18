@@ -1,0 +1,60 @@
+# Resumo da Implementação - Customização de Cores e Posição do Ícone de Favoritos
+
+Implementamos a funcionalidade completa de customização visual para o plugin Wishlist Premium, permitindo que os lojistas configurem a posição do ícone nos cards de produtos e as cores primária (ícone vazio) e secundária (ícone cheio).
+
+## Alterações Realizadas
+
+### 1. Banco de Dados & Migração
+- Modificamos [database.js](file:///c:/3. MULINO_TECH_PROJETOS/plugin_wishlist/config/database.js) para incluir duas novas colunas na tabela `shops`:
+  - `icon_position` (`VARCHAR(50)` padrão `'top-right'`)
+  - `heart_empty_color` (`VARCHAR(7)` padrão `'#888888'`)
+- Adicionamos blocos de migração automática para aplicar as novas colunas nas instalações existentes se elas não existirem no momento da inicialização do servidor.
+
+### 2. Rotas & APIs do Servidor
+- Modificamos as consultas no middleware `validateShop` de [settings.js](file:///c:/3. MULINO_TECH_PROJETOS/plugin_wishlist/routes/settings.js) e [api.js](file:///c:/3. MULINO_TECH_PROJETOS/plugin_wishlist/routes/api.js) para carregar as novas colunas.
+- Atualizamos o endpoint `/api/settings/save` para receber, validar e salvar `icon_position` (validando contra posições permitidas: `top-right`, `top-left`, `bottom-right`, `bottom-left`) e `heart_empty_color` (validando o formato hexadecimal).
+- Atualizamos os endpoints `/api/settings` e `/api/config` para retornar estas configurações para o painel administrativo e para o widget público.
+
+### 3. Painel Administrativo
+- Atualizamos o arquivo [index.html](file:///c:/3. MULINO_TECH_PROJETOS/plugin_wishlist/public/admin/index.html) na seção "Aparência e Retenção":
+  - Adicionamos o input seletor de cores `heart-empty-color` rotulado como "Cor Vazio (Primária)".
+  - Renomeamos o seletor atual para "Cor Cheio (Secundária)".
+  - Adicionamos o seletor `icon-position` contendo as opções de posicionamento absoluto na imagem (Superior Direito, Superior Esquerdo, Inferior Direito, Inferior Esquerdo).
+  - Vinculamos os seletores na inicialização (`loadDashboard`) e na função que envia os dados ao formulário (`settings-form submit`).
+
+### 4. Widget da Wishlist & CSS
+- Atualizamos o arquivo [wishlist-widget.js](file:///c:/3. MULINO_TECH_PROJETOS/plugin_wishlist/public/wishlist-widget.js) para ler as novas chaves de configuração.
+- No `injectProductCardButtons`, o botão agora recebe a classe dinâmica de acordo com a posição salva: `pos-top-right`, `pos-top-left`, `pos-bottom-right` ou `pos-bottom-left`. A cor do ícone no estado de montagem inicial também respeita o status (ativo ou inativo).
+- No `updateUI`, atualizamos a cor do contorno (stroke) do ícone para alternar dinamicamente entre `heart_color` (quando favoritado) e `heart_empty_color` (quando vazio).
+- Adicionamos as regras de posicionamento correspondentes no arquivo [wishlist-widget.css](file:///c:/3. MULINO_TECH_PROJETOS/plugin_wishlist/public/wishlist-widget.css) para fixar o botão em qualquer um dos 4 cantos da imagem do produto:
+  - `pos-top-right`
+  - `pos-top-left`
+  - `pos-bottom-right`
+  - `pos-bottom-left`
+
+### 5. Painel Super Admin Global (Mulino Tech)
+- Criamos o arquivo de rotas [global.js](file:///c:/3. MULINO_TECH_PROJETOS/plugin_wishlist/routes/global.js) para gerenciar a autenticação e as estatísticas globais consolidadas de todas as lojas integradas.
+- Registramos a rota `/api/global` em [app.js](file:///c:/3. MULINO_TECH_PROJETOS/plugin_wishlist/app.js).
+- Criamos a interface visual [global.html](file:///c:/3. MULINO_TECH_PROJETOS/plugin_wishlist/public/admin/global.html) em `public/admin/global.html` contendo formulário de login seguro e um painel administrativo com:
+  - Cards de métricas (Total de Lojas ativas, Total de Favoritos acumulados).
+  - Tabela com todas as lojas instaladas, data de instalação e total de favoritos por loja (com barra de pesquisa dinâmica).
+  - Listagem dos Top 10 Produtos Global consolidados (nome do produto, imagem, total de desejos e a loja a qual pertencem).
+
+## Próximos Passos de Validação
+1. Subir todas as modificações para o servidor Cloudez:
+   - `config/database.js`
+   - `routes/settings.js`
+   - `routes/api.js`
+   - `routes/global.js` [NOVO]
+   - `app.js`
+   - `public/admin/index.html`
+   - `public/admin/global.html` [NOVO]
+   - `public/wishlist-widget.js`
+   - `public/wishlist-widget.css`
+2. Ao reiniciar o app na Cloudez, a migração adicionará automaticamente as colunas no banco e liberará as novas rotas.
+3. Testar a alteração de posicionamento e cor no painel `wl.mulinotech.com/admin`.
+4. Acessar `wl.mulinotech.com/admin/global.html` no navegador e logar com o usuário administrador padrão para conferir a listagem consolidada de todas as lojas.
+   - **Usuário Padrão:** `admin@mulinotech.com`
+   - **Senha Padrão:** `mulinoadminsecret`
+   *(Essas credenciais podem ser customizadas adicionando as chaves `ADMIN_USER` e `ADMIN_PASS` no arquivo `.env` na Cloudez).*
+
