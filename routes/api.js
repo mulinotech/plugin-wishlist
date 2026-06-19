@@ -59,7 +59,7 @@ router.get('/favorites', validateShop, async (req, res) => {
 
 // 2. Adicionar produto aos favoritos
 router.post('/favorites', validateShop, async (req, res) => {
-  const { customer_hash, product_id, product_name, product_url, product_image, product_price } = req.body;
+  const { customer_hash, customer_identifier, product_id, product_name, product_url, product_image, product_price } = req.body;
 
   if (!customer_hash || !product_id || !product_name || !product_url) {
     return res.status(400).json({ error: 'Campos obrigatórios ausentes.' });
@@ -77,9 +77,9 @@ router.post('/favorites', validateShop, async (req, res) => {
     }
 
     await db.query(
-      `INSERT INTO favorites (shop_id, customer_hash, product_id, product_name, product_url, product_image, product_price) 
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [req.shop.id, customer_hash, product_id, product_name, product_url, product_image, parseInt(product_price) || 0]
+      `INSERT INTO favorites (shop_id, customer_hash, customer_identifier, product_id, product_name, product_url, product_image, product_price) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [req.shop.id, customer_hash, customer_identifier || null, product_id, product_name, product_url, product_image, parseInt(product_price) || 0]
     );
 
     res.json({ success: true, message: 'Produto favoritado com sucesso.' });

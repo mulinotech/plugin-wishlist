@@ -25,7 +25,7 @@ async function validateShop(req, res, next) {
   }
 
   try {
-    const [shops] = await db.query('SELECT id, retention_days, heart_color, counter_color, wishlist_icon, heart_empty_color, icon_position FROM shops WHERE vnda_shop_id = ?', [shopDomain]);
+    const [shops] = await db.query('SELECT id, retention_days, heart_color, counter_color, wishlist_icon, heart_empty_color, icon_position, dashboard_mode, niche_profile FROM shops WHERE vnda_shop_id = ?', [shopDomain]);
     if (shops.length === 0) {
       return res.status(404).json({ error: 'Loja não cadastrada.' });
     }
@@ -67,6 +67,37 @@ router.get('/', validateShop, async (req, res) => {
       [req.shop.id]
     );
 
+    // Cálculo do Pipeline de Receita (Valor Potencial da Wishlist)
+    const [pipelineResult] = await db.query(
+      'SELECT SUM(product_price) as total_price FROM favorites WHERE shop_id = ?',
+      [req.shop.id]
+    );
+    const pipelineValue = pipelineResult[0].total_price || 0;
+
+    // Cálculo do Tempo de Maturação
+    const [maturationResult] = await db.query(
+      `SELECT 
+         COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 END) as quick,
+         COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) AND created_at < DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 END) as mature,
+         COUNT(CASE WHEN created_at < DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 END) as long_term
+       FROM favorites 
+       WHERE shop_id = ?`,
+      [req.shop.id]
+    );
+    const maturation = maturationResult[0] || { quick: 0, mature: 0, long_term: 0 };
+
+    // Cálculo do Índice de Substituição (Cross-Wishlist)
+    const [crossResult] = await db.query(
+      `SELECT f1.product_name as prod1, f2.product_name as prod2, COUNT(*) as total 
+       FROM favorites f1 
+       JOIN favorites f2 ON f1.customer_hash = f2.customer_hash AND f1.product_id < f2.product_id 
+       WHERE f1.shop_id = ? AND f2.shop_id = ? 
+       GROUP BY f1.product_id, f2.product_id 
+       ORDER BY total DESC 
+       LIMIT 5`,
+      [req.shop.id, req.shop.id]
+    );
+
     res.json({
       success: true,
       settings: {
@@ -75,21 +106,27 @@ router.get('/', validateShop, async (req, res) => {
         counter_color: req.shop.counter_color || '#e74c3c',
         wishlist_icon: req.shop.wishlist_icon || 'heart',
         heart_empty_color: req.shop.heart_empty_color || '#888888',
-        icon_position: req.shop.icon_position || 'top-right'
+        icon_position: req.shop.icon_position || 'top-right',
+        dashboard_mode: req.shop.dashboard_mode || 'standard',
+        niche_profile: req.shop.niche_profile || 'general'
       },
       stats: {
         total: totalFavorites[0].total,
-        mostFavorited: statsMostFavorited
+        mostFavorited: statsMostFavorited,
+        pipelineValue,
+        maturation,
+        crossWishlist: crossResult
       }
     });
   } catch (error) {
+    console.error('Erro ao carregar estatísticas:', error);
     res.status(500).json({ error: 'Erro ao carregar estatísticas.' });
   }
 });
 
-// 2. Atualizar configurações (dias de retenção, cores e ícone)
+// 2. Atualizar configurações (dias de retenção, cores, ícone e modo premium)
 router.post('/save', validateShop, async (req, res) => {
-  const { retention_days, heart_color, counter_color, wishlist_icon, heart_empty_color, icon_position, shop } = req.body;
+  const { retention_days, heart_color, counter_color, wishlist_icon, heart_empty_color, icon_position, dashboard_mode, niche_profile, shop } = req.body;
 
   if (retention_days === undefined || isNaN(retention_days) || parseInt(retention_days) < 1) {
     return res.status(400).json({ error: 'Dias de retenção inválidos.' });
@@ -109,13 +146,18 @@ router.post('/save', validateShop, async (req, res) => {
   const allowedPositions = ['top-right', 'top-left', 'bottom-right', 'bottom-left'];
   const validPosition = icon_position && allowedPositions.includes(icon_position) ? icon_position : 'top-right';
 
+  // Validação do modo e perfil de nicho
+  const validMode = ['standard', 'premium'].includes(dashboard_mode) ? dashboard_mode : 'standard';
+  const validNiche = ['general', 'decor', 'fashion'].includes(niche_profile) ? niche_profile : 'general';
+
   try {
     await db.query(
-      'UPDATE shops SET retention_days = ?, heart_color = ?, counter_color = ?, wishlist_icon = ?, heart_empty_color = ?, icon_position = ? WHERE vnda_shop_id = ?',
-      [parseInt(retention_days), validHeartColor, validCounterColor, validIcon, validEmptyColor, validPosition, shop]
+      'UPDATE shops SET retention_days = ?, heart_color = ?, counter_color = ?, wishlist_icon = ?, heart_empty_color = ?, icon_position = ?, dashboard_mode = ?, niche_profile = ? WHERE vnda_shop_id = ?',
+      [parseInt(retention_days), validHeartColor, validCounterColor, validIcon, validEmptyColor, validPosition, validMode, validNiche, shop]
     );
     res.json({ success: true, message: 'Configurações atualizadas com sucesso.' });
   } catch (error) {
+    console.error('Erro ao salvar configurações:', error);
     res.status(500).json({ error: 'Erro ao salvar configurações.' });
   }
 });
@@ -153,7 +195,7 @@ router.get('/export', validateShop, async (req, res) => {
 router.get('/customers', validateShop, async (req, res) => {
   try {
     const [rows] = await db.query(
-      `SELECT customer_hash, product_id, product_name, product_image, product_price, created_at 
+      `SELECT customer_hash, customer_identifier, product_id, product_name, product_image, product_price, created_at 
        FROM favorites 
        WHERE shop_id = ? 
        ORDER BY customer_hash, created_at DESC`,
@@ -166,21 +208,26 @@ router.get('/customers', validateShop, async (req, res) => {
       if (!customersMap[row.customer_hash]) {
         customersMap[row.customer_hash] = {
           customer_hash: row.customer_hash,
+          customer_identifier: row.customer_identifier || null,
           total_favorites: 0,
+          pipeline_value: 0,
           items: []
         };
       }
       const sim = getSimulatedStatus(row.product_id);
+      const itemPrice = row.product_price || sim.currentPrice;
+      
       customersMap[row.customer_hash].items.push({
         id: row.product_id,
         name: row.product_name,
         image: row.product_image,
-        price: row.product_price,
+        price: itemPrice,
         inStock: sim.inStock,
         stockCount: sim.stockCount,
         currentPrice: sim.currentPrice,
         created_at: row.created_at
       });
+      customersMap[row.customer_hash].pipeline_value += itemPrice;
       customersMap[row.customer_hash].total_favorites++;
     });
 
@@ -189,6 +236,7 @@ router.get('/customers', validateShop, async (req, res) => {
       customers: Object.values(customersMap)
     });
   } catch (error) {
+    console.error('Erro ao buscar visão geral de clientes:', error);
     res.status(500).json({ error: 'Erro ao buscar visão geral de clientes.' });
   }
 });

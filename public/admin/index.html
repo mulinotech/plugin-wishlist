@@ -570,6 +570,25 @@
                 </select>
               </div>
 
+              <!-- Configurações Premium / Adaptativo -->
+              <div class="form-row" style="margin-bottom: 20px;">
+                <div>
+                  <label for="dashboard-mode">Modo do Painel</label>
+                  <select id="dashboard-mode" style="width: 100%; height: 46px; background: #FFFFFF; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; color: var(--text); padding: 0 14px; outline: none; transition: border-color 0.2s; cursor: pointer;">
+                    <option value="standard">Padrão Olist</option>
+                    <option value="premium">💎 Premium (Radar)</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="niche-profile">Perfil de Nicho</label>
+                  <select id="niche-profile" style="width: 100%; height: 46px; background: #FFFFFF; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; color: var(--text); padding: 0 14px; outline: none; transition: border-color 0.2s; cursor: pointer;">
+                    <option value="general">Geral / Varejo</option>
+                    <option value="decor">Móveis & Decoração (Luxo)</option>
+                    <option value="fashion">Moda & Joias</option>
+                  </select>
+                </div>
+              </div>
+
               <button type="submit" class="btn">Salvar Alterações</button>
             </form>
           </div>
@@ -577,6 +596,58 @@
 
         <!-- Painel Direito: Gráficos e Desempenho -->
         <div class="grid-col-right" style="display: flex; flex-direction: column; gap: 24px;">
+          <!-- Bloco Analítico Premium (Modo Radar) -->
+          <div class="card" id="premium-analytics-card" style="display: none; background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 247, 250, 0.9) 100%); border: 1.5px solid rgba(242, 100, 34, 0.25); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); transition: all 0.3s ease;">
+            <h2 id="premium-main-title" style="display: flex; align-items: center; gap: 8px; font-size: 20px;">💎 Painel Analítico Premium (Modo Radar)</h2>
+            <p class="stat-desc" id="premium-main-desc" style="margin-bottom: 20px;">Métricas e inteligência comercial adaptadas ao seu nicho de negócio.</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 20px;">
+              <div style="background: rgba(255, 255, 255, 0.85); border: 1px solid var(--border); border-radius: 12px; padding: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.01);">
+                <label id="premium-pipeline-title" style="font-size: 11px; letter-spacing: 0.5px;">Pipeline de Receita Estimado</label>
+                <div class="stat-large" id="premium-pipeline-val" style="font-size: 34px; color: var(--primary); margin-top: 6px; font-weight: 700;">R$ 0,00</div>
+                <div class="stat-desc" id="premium-pipeline-desc" style="margin-bottom: 0; font-size: 12px;">Valor total estimado de todos os desejos ativos.</div>
+              </div>
+              
+              <div style="background: rgba(255, 255, 255, 0.85); border: 1px solid var(--border); border-radius: 12px; padding: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.01);">
+                <label id="premium-maturation-title" style="font-size: 11px; letter-spacing: 0.5px;">Maturação do Desejo por Tempo</label>
+                <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 10px;">
+                  <div>
+                    <span style="font-size: 12px; font-weight: 600; display: flex; justify-content: space-between;">
+                      <span id="label-maturation-quick">Decisão Rápida (< 7 dias)</span> <span id="val-maturation-quick">0%</span>
+                    </span>
+                    <div style="background: #E2E8F0; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 4px;">
+                      <div id="bar-maturation-quick" style="background: #10B981; width: 0%; height: 100%; transition: width 0.4s;"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <span style="font-size: 12px; font-weight: 600; display: flex; justify-content: space-between;">
+                      <span id="label-maturation-mature">Decisão Planejada (8 a 30 dias)</span> <span id="val-maturation-mature">0%</span>
+                    </span>
+                    <div style="background: #E2E8F0; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 4px;">
+                      <div id="bar-maturation-mature" style="background: var(--primary); width: 0%; height: 100%; transition: width 0.4s;"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <span style="font-size: 12px; font-weight: 600; display: flex; justify-content: space-between;">
+                      <span id="label-maturation-long">Desejo de Longo Prazo (> 30 dias)</span> <span id="val-maturation-long">0%</span>
+                    </span>
+                    <div style="background: #E2E8F0; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 4px;">
+                      <div id="bar-maturation-long" style="background: var(--secondary); width: 0%; height: 100%; transition: width 0.4s;"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Índice de Substituição / Cross-Wishlist -->
+            <div style="background: rgba(255, 255, 255, 0.85); border: 1px solid var(--border); border-radius: 12px; padding: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.01);">
+              <h3 id="premium-cross-title" style="font-size: 14px; font-weight: 700; color: var(--secondary); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">🔄 Substituição Cruzada (Desejos Concorrentes)</h3>
+              <div id="premium-cross-list" class="product-list" style="gap: 12px;">
+                <p class="stat-desc" style="text-align: center; margin-bottom: 0;">Carregando dados de substituição...</p>
+              </div>
+            </div>
+          </div>
+
           <!-- Gráfico de Desempenho -->
           <div class="card">
             <h2>📈 Desempenho e Engajamento</h2>
@@ -692,6 +763,100 @@
     });
 
     // Carregar configurações e estatísticas da API
+    // Dicionário global de termos de nicho
+    const nicheVocab = {
+      general: {
+        pipelineTitle: "Pipeline de Receita Estimado",
+        pipelineDesc: "Valor total monetário em listas ativas.",
+        maturationTitle: "Tempo de Maturação do Desejo",
+        maturationQuick: "Decisão Rápida (< 7 dias)",
+        maturationMature: "Decisão Planejada (8 a 30 dias)",
+        maturationLong: "Desejo de Longo Prazo (> 30 dias)",
+        crossTitle: "Substituição Cruzada (Desejos Concorrentes)",
+        conciergeBtn: "Oferecer Produto Semelhante",
+        briefingTitle: "Notas de Relacionamento Comercial",
+        briefingPlaceholder: "Escreva preferências, histórico de contatos...",
+        customerLabel: "Identificação do Cliente",
+        conciergeAlert: "Proposta Comercial criada para o cliente! O link da proposta VIP foi gerado para envio manual."
+      },
+      decor: {
+        pipelineTitle: "Pipeline em Arte & Acervo",
+        pipelineDesc: "Somatório de mercado de toda a curadoria ativa.",
+        maturationTitle: "Tempo de Maturação (Decoração vs. Investimento)",
+        maturationQuick: "Itens de Decoração (< 7 dias)",
+        maturationMature: "Itens de Investimento (8 a 30 dias)",
+        maturationLong: "Obras Raras / Acervo (> 30 dias)",
+        crossTitle: "Substituição por Procedência (Conflitos Florais vs. Geométricos)",
+        conciergeBtn: "Oferecer Peça Irmã de Arquivo",
+        briefingTitle: "Briefing do Projeto (Notas do Arquiteto)",
+        briefingPlaceholder: "Notas sobre o ambiente, designer ou projeto do arquiteto...",
+        customerLabel: "Especificador / Arquiteto / Cliente VIP",
+        conciergeAlert: "Curadoria Premium enviada! Peça irmã de arquivo selecionada para contato com o arquiteto."
+      },
+      fashion: {
+        pipelineTitle: "Pipeline em Moda & Styling",
+        pipelineDesc: "Valor total estimado de looks/vestuário desejados.",
+        maturationTitle: "Tempo de Maturação (Decisão de Estilo)",
+        maturationQuick: "Moda de Entrada / Acessórios (< 7 dias)",
+        maturationMature: "Peças de Coleção (8 a 30 dias)",
+        maturationLong: "Alta Costura & Edições Limitadas (> 30 dias)",
+        crossTitle: "Substituição de Visual (Cross-Styling)",
+        conciergeBtn: "Oferecer Styling Session VIP",
+        briefingTitle: "Perfil de Estilo (Notas do Personal Stylist)",
+        briefingPlaceholder: "Preferências de modelagem, paleta de cores do cliente...",
+        customerLabel: "Cliente VIP / Personal Stylist",
+        conciergeAlert: "Styling Session agendada! Convite para preview exclusivo gerado com sucesso."
+      }
+    };
+
+    // Estado global de configurações carregadas
+    let currentSettings = {
+      dashboard_mode: 'standard',
+      niche_profile: 'general'
+    };
+
+    function applyThemeAndLabels(mode, niche) {
+      const root = document.documentElement;
+      const premiumCard = document.getElementById('premium-analytics-card');
+      
+      // Aplicar Cores Dinâmicas conforme o Nicho
+      if (mode === 'premium') {
+        premiumCard.style.display = 'block';
+        if (niche === 'decor') {
+          root.style.setProperty('--primary', '#cda250'); // Gold / Bronze
+          root.style.setProperty('--secondary', '#0f3c2b'); // Forest Green
+          root.style.setProperty('--bg-color', '#F4F7F5');
+        } else if (niche === 'fashion') {
+          root.style.setProperty('--primary', '#D4AF37'); // Gold
+          root.style.setProperty('--secondary', '#111111'); // Noir / Black
+          root.style.setProperty('--bg-color', '#FAFAFA');
+        } else {
+          // General Premium
+          root.style.setProperty('--primary', '#F26422');
+          root.style.setProperty('--secondary', '#002244');
+          root.style.setProperty('--bg-color', '#F8FAFC');
+        }
+      } else {
+        premiumCard.style.display = 'none';
+        root.style.setProperty('--primary', '#F26422');
+        root.style.setProperty('--secondary', '#002244');
+        root.style.setProperty('--bg-color', '#F8FAFC');
+      }
+
+      // Traduzir Rótulos e Textos com base no Vocabulário de Nicho
+      const vocab = nicheVocab[niche] || nicheVocab.general;
+      
+      document.getElementById('premium-pipeline-title').textContent = vocab.pipelineTitle;
+      document.getElementById('premium-pipeline-desc').textContent = vocab.pipelineDesc;
+      document.getElementById('premium-maturation-title').textContent = vocab.maturationTitle;
+      document.getElementById('premium-cross-title').textContent = '🔄 ' + vocab.crossTitle;
+      
+      document.getElementById('label-maturation-quick').textContent = vocab.maturationQuick;
+      document.getElementById('label-maturation-mature').textContent = vocab.maturationMature;
+      document.getElementById('label-maturation-long').textContent = vocab.maturationLong;
+    }
+
+    // Carregar configurações e estatísticas da API
     async function loadDashboard() {
       try {
         const res = await fetch(`/api/settings?shop=${shopDomain}`);
@@ -705,9 +870,61 @@
           document.getElementById('wishlist-icon').value = data.settings.wishlist_icon || 'heart';
           document.getElementById('heart-empty-color').value = data.settings.heart_empty_color || '#888888';
           document.getElementById('icon-position').value = data.settings.icon_position || 'top-right';
+          document.getElementById('dashboard-mode').value = data.settings.dashboard_mode || 'standard';
+          document.getElementById('niche-profile').value = data.settings.niche_profile || 'general';
+          
+          currentSettings.dashboard_mode = data.settings.dashboard_mode || 'standard';
+          currentSettings.niche_profile = data.settings.niche_profile || 'general';
+          
+          // Aplicar tema e textos adaptados
+          applyThemeAndLabels(currentSettings.dashboard_mode, currentSettings.niche_profile);
           
           // Total de favoritos
           document.getElementById('total-favorites').textContent = data.stats.total;
+
+          // Renderizar métricas Premium se o modo estiver ativo
+          if (currentSettings.dashboard_mode === 'premium') {
+            const formattedPipeline = (data.stats.pipelineValue / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('premium-pipeline-val').textContent = formattedPipeline;
+
+            // Maturação por barras de progresso
+            const maturationTotal = data.stats.maturation.quick + data.stats.maturation.mature + data.stats.maturation.long_term || 1;
+            const pctQuick = Math.round((data.stats.maturation.quick / maturationTotal) * 100);
+            const pctMature = Math.round((data.stats.maturation.mature / maturationTotal) * 100);
+            const pctLong = Math.round((data.stats.maturation.long_term / maturationTotal) * 100);
+
+            document.getElementById('val-maturation-quick').textContent = pctQuick + '%';
+            document.getElementById('bar-maturation-quick').style.width = pctQuick + '%';
+            
+            document.getElementById('val-maturation-mature').textContent = pctMature + '%';
+            document.getElementById('bar-maturation-mature').style.width = pctMature + '%';
+            
+            document.getElementById('val-maturation-long').textContent = pctLong + '%';
+            document.getElementById('bar-maturation-long').style.width = pctLong + '%';
+
+            // Cross-wishlist (Substituição)
+            const crossContainer = document.getElementById('premium-cross-list');
+            if (data.stats.crossWishlist && data.stats.crossWishlist.length > 0) {
+              crossContainer.innerHTML = '';
+              data.stats.crossWishlist.forEach(pair => {
+                crossContainer.innerHTML += `
+                  <div class="product-row" style="padding-bottom: 12px; border-bottom: 1px dashed var(--border);">
+                    <div style="flex:1;">
+                      <span style="font-size: 13px; font-weight: 600; color: var(--secondary); display:block;">
+                        ${pair.prod1} <span style="color: var(--primary);">vs.</span> ${pair.prod2}
+                      </span>
+                      <span style="font-size: 12px; color: var(--text-light);">Frequência de concorrência na mesma lista</span>
+                    </div>
+                    <span class="product-count" style="background: rgba(0,34,68,0.05); color: var(--secondary); border-color: rgba(0,34,68,0.15); flex:none;">
+                      ${pair.total} colecionadores
+                    </span>
+                  </div>
+                `;
+              });
+            } else {
+              crossContainer.innerHTML = '<p class="stat-desc" style="text-align: center; margin-bottom: 0; padding: 10px;">Ainda não há dados suficientes de produtos favoritados juntos.</p>';
+            }
+          }
 
           // Produtos Populares (Dashboard) e Recomendações de Marketing
           const productsContainer = document.getElementById('popular-products');
@@ -869,6 +1086,7 @@
     // Carregar dados de Gestão de Clientes
     async function loadCustomers() {
       const container = document.getElementById('customers-list-container');
+      const vocab = nicheVocab[currentSettings.niche_profile] || nicheVocab.general;
       try {
         const res = await fetch(`/api/settings/customers?shop=${shopDomain}`);
         if (res.ok) {
@@ -878,7 +1096,7 @@
             data.customers.forEach(customer => {
               let itemsHtml = '';
               customer.items.forEach(item => {
-                const formattedPrice = (item.currentPrice / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                const formattedPrice = (item.price / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 const stockBadge = item.inStock 
                   ? `<span class="stock-badge in-stock">Em estoque (${item.stockCount} un.)</span>` 
                   : `<span class="stock-badge out-of-stock">Esgotado</span>`;
@@ -897,17 +1115,50 @@
                 `;
               });
 
+              // Carregar briefing salvo do localStorage (Simulação de persistência local por cliente)
+              const savedBriefing = localStorage.getItem(`briefing_${shopDomain}_${customer.customer_hash}`) || '';
+              
+              // Seletor dinâmico do título do cliente (ID se disponível ou Hash)
+              const clientDisplayName = customer.customer_identifier || `Cliente #${customer.customer_hash.substring(0, 8)}`;
+              const formattedPipeline = (customer.pipeline_value / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+              let premiumSectionHtml = '';
+              if (currentSettings.dashboard_mode === 'premium') {
+                premiumSectionHtml = `
+                  <div style="margin-top: 14px; border-top: 1px dashed var(--border); padding-top: 14px; display: flex; flex-direction: column; gap: 8px;">
+                    <label style="font-size: 11px; font-weight: 700; color: var(--text-light); text-transform: uppercase;">
+                      ${vocab.briefingTitle}
+                    </label>
+                    <div style="display: flex; gap: 8px;">
+                      <input type="text" id="briefing-${customer.customer_hash}" placeholder="${vocab.briefingPlaceholder}" value="${savedBriefing}" style="flex: 1; height: 38px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; font-size: 13px;">
+                      <button class="btn" onclick="saveBriefing('${customer.customer_hash}')" style="flex: none; padding: 0 16px; height: 38px; font-size: 13px; box-shadow: none;">Salvar</button>
+                    </div>
+                    <div style="margin-top: 4px; display: flex; gap: 8px; justify-content: flex-end;">
+                      <button class="btn btn-outlined" onclick="triggerConcierge('${customer.customer_hash}', '${vocab.conciergeAlert.replace(/'/g, "\\'")}')" style="padding: 6px 12px; font-size: 12px; height: auto;">
+                        ✨ ${vocab.conciergeBtn}
+                      </button>
+                    </div>
+                  </div>
+                `;
+              }
+
               container.innerHTML += `
                 <div class="customer-card">
                   <div class="customer-header">
-                    <span class="customer-hash-title" title="${customer.customer_hash}">Cliente: ${customer.customer_hash}</span>
+                    <span class="customer-hash-title" style="font-family:'Inter', sans-serif;" title="Hash: ${customer.customer_hash}">
+                      👤 <strong>${vocab.customerLabel}:</strong> ${clientDisplayName}
+                    </span>
                     <span class="customer-meta">
+                      <span class="stock-badge in-stock" style="background: rgba(0, 34, 68, 0.05); color: var(--secondary); border: 1px solid rgba(0, 34, 68, 0.15);">
+                        Pipeline: ${formattedPipeline}
+                      </span>
                       <span class="stock-badge in-stock">${customer.total_favorites} itens</span>
                     </span>
                   </div>
                   <div class="customer-items">
                     ${itemsHtml}
                   </div>
+                  ${premiumSectionHtml}
                 </div>
               `;
             });
@@ -919,6 +1170,20 @@
         console.error('Erro ao buscar clientes:', e);
         container.innerHTML = '<p class="stat-desc" style="text-align: center; color: #dc2626; padding: 20px;">Erro ao carregar lista de clientes.</p>';
       }
+    }
+
+    // Salvar Briefing na simulação local
+    function saveBriefing(customerHash) {
+      const input = document.getElementById(`briefing-${customerHash}`);
+      if (input) {
+        localStorage.setItem(`briefing_${shopDomain}_${customerHash}`, input.value);
+        showToast('Briefing salvo com sucesso!');
+      }
+    }
+
+    // Trigger de ação VIP / Concierge
+    function triggerConcierge(customerHash, alertMessage) {
+      alert(alertMessage);
     }
 
     // Remover item administrativamente (Gestão de listas)
@@ -977,6 +1242,8 @@
        const wishlistIcon = document.getElementById('wishlist-icon').value;
        const heartEmptyColor = document.getElementById('heart-empty-color').value;
        const iconPosition = document.getElementById('icon-position').value;
+       const dashboardMode = document.getElementById('dashboard-mode').value;
+       const nicheProfile = document.getElementById('niche-profile').value;
  
        try {
          const res = await fetch('/api/settings/save', {
@@ -989,7 +1256,9 @@
              counter_color: counterColor,
              wishlist_icon: wishlistIcon,
              heart_empty_color: heartEmptyColor,
-             icon_position: iconPosition
+             icon_position: iconPosition,
+             dashboard_mode: dashboardMode,
+             niche_profile: nicheProfile
            })
          });
 

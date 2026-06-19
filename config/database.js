@@ -46,6 +46,8 @@ async function initDb() {
         wishlist_icon VARCHAR(50) DEFAULT 'heart',
         heart_empty_color VARCHAR(7) DEFAULT '#888888',
         icon_position VARCHAR(50) DEFAULT 'top-right',
+        dashboard_mode VARCHAR(50) DEFAULT 'standard',
+        niche_profile VARCHAR(50) DEFAULT 'general',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -57,6 +59,7 @@ async function initDb() {
         id INT AUTO_INCREMENT PRIMARY KEY,
         shop_id INT NOT NULL,
         customer_hash VARCHAR(64) NOT NULL,
+        customer_identifier VARCHAR(255) NULL,
         product_id VARCHAR(255) NOT NULL,
         product_name VARCHAR(255) NOT NULL,
         product_url TEXT NOT NULL,
@@ -106,6 +109,25 @@ async function initDb() {
           ADD COLUMN icon_position VARCHAR(50) DEFAULT 'top-right'
         `);
         console.log('Tabela shops alterada com sucesso para incluir a coluna icon_position.');
+      }
+
+      const [modeCols] = await promisePool.query("SHOW COLUMNS FROM shops LIKE 'dashboard_mode'");
+      if (modeCols.length === 0) {
+        await promisePool.query(`
+          ALTER TABLE shops 
+          ADD COLUMN dashboard_mode VARCHAR(50) DEFAULT 'standard',
+          ADD COLUMN niche_profile VARCHAR(50) DEFAULT 'general'
+        `);
+        console.log('Tabela shops alterada com sucesso para incluir colunas de modo premium.');
+      }
+
+      const [identifierCols] = await promisePool.query("SHOW COLUMNS FROM favorites LIKE 'customer_identifier'");
+      if (identifierCols.length === 0) {
+        await promisePool.query(`
+          ALTER TABLE favorites 
+          ADD COLUMN customer_identifier VARCHAR(255) NULL
+        `);
+        console.log('Tabela favorites alterada com sucesso para incluir a coluna customer_identifier.');
       }
     } catch (migError) {
       console.warn('Aviso ao aplicar migrações na tabela shops:', migError.message);

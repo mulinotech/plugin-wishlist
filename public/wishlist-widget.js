@@ -7,6 +7,7 @@
   const Wishlist = {
     isLoggedIn: false,
     customerHash: null,
+    customerIdentifier: null,
     favorites: [],
     shopDomain: window.location.hostname,
     lastRemovedItem: null, // Guardar último item removido para Undo
@@ -130,6 +131,7 @@
           if (client && Object.keys(client).length > 0) {
             this.isLoggedIn = true;
             this.customerHash = await this.hashEmail(client.email || client.id.toString());
+            this.customerIdentifier = client.email || client.id.toString();
             return true;
           }
         }
@@ -138,6 +140,7 @@
       }
       this.isLoggedIn = false;
       this.customerHash = null;
+      this.customerIdentifier = null;
       return false;
     },
 
@@ -205,6 +208,7 @@
             body: JSON.stringify({
               shop: this.shopDomain,
               customer_hash: this.customerHash,
+              customer_identifier: this.customerIdentifier,
               product_id: product.id,
               product_name: product.name,
               product_url: product.url,
