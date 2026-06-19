@@ -1086,19 +1086,24 @@
     // Carregar dados de Gestão de Clientes
     async function loadCustomers() {
       const container = document.getElementById('customers-list-container');
-      const vocab = nicheVocab[currentSettings.niche_profile] || nicheVocab.general;
       try {
-        const res = await fetch(`/api/settings/customers?shop=${shopDomain}`);
+        const profile = currentSettings ? currentSettings.niche_profile : 'general';
+        const vocab = nicheVocab[profile] || nicheVocab.general || {};
+        
+        // Cache buster com timestamp para forçar atualização do servidor da Cloudez
+        const res = await fetch(`/api/settings/customers?shop=${shopDomain}&t=${Date.now()}`);
         if (res.ok) {
           const data = await res.json();
           if (data.customers && data.customers.length > 0) {
             container.innerHTML = '';
             data.customers.forEach(customer => {
               let itemsHtml = '';
-              customer.items.forEach(item => {
-                const formattedPrice = (item.price / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+              const items = customer.items || [];
+              items.forEach(item => {
+                const itemPrice = item.price !== undefined && item.price !== null ? item.price : (item.currentPrice || 0);
+                const formattedPrice = (itemPrice / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 const stockBadge = item.inStock 
-                  ? `<span class="stock-badge in-stock">Em estoque (${item.stockCount} un.)</span>` 
+                  ? `<span class="stock-badge in-stock">Em estoque (${item.stockCount || 0} un.)</span>` 
                   : `<span class="stock-badge out-of-stock">Esgotado</span>`;
                 
                 itemsHtml += `
@@ -1106,7 +1111,7 @@
                     <div style="display:flex; align-items:center; gap:8px;">
                       <img src="${item.image || 'https://via.placeholder.com/32'}" style="width:32px; height:32px; object-fit:cover; border-radius:4px;">
                       <div>
-                        <span style="font-size: 13px; font-weight:500;">${item.name}</span>
+                        <span style="font-size: 13px; font-weight:500;">${item.name || 'Produto'}</span>
                         <div style="margin-top:2px;">${formattedPrice} &nbsp; ${stockBadge}</div>
                       </div>
                     </div>
@@ -1120,22 +1125,24 @@
               
               // Seletor dinâmico do título do cliente (ID se disponível ou Hash)
               const clientDisplayName = customer.customer_identifier || `Cliente #${customer.customer_hash.substring(0, 8)}`;
-              const formattedPipeline = (customer.pipeline_value / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+              const pipelineVal = customer.pipeline_value || 0;
+              const formattedPipeline = (pipelineVal / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
               let premiumSectionHtml = '';
-              if (currentSettings.dashboard_mode === 'premium') {
+              const isPremium = currentSettings && currentSettings.dashboard_mode === 'premium';
+              if (isPremium) {
                 premiumSectionHtml = `
                   <div style="margin-top: 14px; border-top: 1px dashed var(--border); padding-top: 14px; display: flex; flex-direction: column; gap: 8px;">
                     <label style="font-size: 11px; font-weight: 700; color: var(--text-light); text-transform: uppercase;">
-                      ${vocab.briefingTitle}
+                      ${vocab.briefingTitle || 'Notas'}
                     </label>
                     <div style="display: flex; gap: 8px;">
-                      <input type="text" id="briefing-${customer.customer_hash}" placeholder="${vocab.briefingPlaceholder}" value="${savedBriefing}" style="flex: 1; height: 38px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; font-size: 13px;">
+                      <input type="text" id="briefing-${customer.customer_hash}" placeholder="${vocab.briefingPlaceholder || ''}" value="${savedBriefing}" style="flex: 1; height: 38px; border: 1px solid var(--border); border-radius: 6px; padding: 0 10px; font-size: 13px;">
                       <button class="btn" onclick="saveBriefing('${customer.customer_hash}')" style="flex: none; padding: 0 16px; height: 38px; font-size: 13px; box-shadow: none;">Salvar</button>
                     </div>
                     <div style="margin-top: 4px; display: flex; gap: 8px; justify-content: flex-end;">
-                      <button class="btn btn-outlined" onclick="triggerConcierge('${customer.customer_hash}', '${vocab.conciergeAlert.replace(/'/g, "\\'")}')" style="padding: 6px 12px; font-size: 12px; height: auto;">
-                        ✨ ${vocab.conciergeBtn}
+                      <button class="btn btn-outlined" onclick="triggerConcierge('${customer.customer_hash}', '${(vocab.conciergeAlert || '').replace(/'/g, "\\'")}')" style="padding: 6px 12px; font-size: 12px; height: auto;">
+                        ✨ ${vocab.conciergeBtn || 'Ação VIP'}
                       </button>
                     </div>
                   </div>
@@ -1146,13 +1153,13 @@
                 <div class="customer-card">
                   <div class="customer-header">
                     <span class="customer-hash-title" style="font-family:'Inter', sans-serif;" title="Hash: ${customer.customer_hash}">
-                      👤 <strong>${vocab.customerLabel}:</strong> ${clientDisplayName}
+                      👤 <strong>${vocab.customerLabel || 'Cliente'}:</strong> ${clientDisplayName}
                     </span>
                     <span class="customer-meta">
                       <span class="stock-badge in-stock" style="background: rgba(0, 34, 68, 0.05); color: var(--secondary); border: 1px solid rgba(0, 34, 68, 0.15);">
                         Pipeline: ${formattedPipeline}
                       </span>
-                      <span class="stock-badge in-stock">${customer.total_favorites} itens</span>
+                      <span class="stock-badge in-stock">${customer.total_favorites || 0} itens</span>
                     </span>
                   </div>
                   <div class="customer-items">
@@ -1165,10 +1172,12 @@
           } else {
             container.innerHTML = '<p class="stat-desc" style="text-align: center; padding: 20px;">Nenhum cliente com itens salvos na lista de desejos.</p>';
           }
+        } else {
+          container.innerHTML = `<p class="stat-desc" style="text-align: center; color: #dc2626; padding: 20px;">Erro ao carregar clientes do servidor (Status: ${res.status}).</p>`;
         }
       } catch (e) {
         console.error('Erro ao buscar clientes:', e);
-        container.innerHTML = '<p class="stat-desc" style="text-align: center; color: #dc2626; padding: 20px;">Erro ao carregar lista de clientes.</p>';
+        container.innerHTML = '<p class="stat-desc" style="text-align: center; color: #dc2626; padding: 20px;">Erro ao carregar lista de clientes no navegador.</p>';
       }
     }
 

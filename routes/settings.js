@@ -204,16 +204,16 @@ router.get('/customers', validateShop, async (req, res) => {
         [req.shop.id]
       );
     } catch (err) {
-      // Fallback caso a migração do banco ainda não tenha rodado na produção
-      if (err.code === 'ER_BAD_FIELD_ERROR' || err.message.includes('customer_identifier')) {
+      // Fallback caso a migração do banco ainda não tenha rodado na produção para customer_identifier ou product_price
+      if (err.code === 'ER_BAD_FIELD_ERROR' || err.message.includes('customer_identifier') || err.message.includes('product_price')) {
         const [fallbackRows] = await db.query(
-          `SELECT customer_hash, product_id, product_name, product_image, product_price, created_at 
+          `SELECT customer_hash, product_id, product_name, product_image, created_at 
            FROM favorites 
            WHERE shop_id = ? 
            ORDER BY customer_hash, created_at DESC`,
           [req.shop.id]
         );
-        rows = fallbackRows.map(r => ({ ...r, customer_identifier: null }));
+        rows = fallbackRows.map(r => ({ ...r, customer_identifier: null, product_price: null }));
       } else {
         throw err;
       }

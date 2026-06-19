@@ -129,6 +129,15 @@ async function initDb() {
         `);
         console.log('Tabela favorites alterada com sucesso para incluir a coluna customer_identifier.');
       }
+
+      const [priceCols] = await promisePool.query("SHOW COLUMNS FROM favorites LIKE 'product_price'");
+      if (priceCols.length === 0) {
+        await promisePool.query(`
+          ALTER TABLE favorites 
+          ADD COLUMN product_price INT DEFAULT 0
+        `);
+        console.log('Tabela favorites alterada com sucesso para incluir a coluna product_price.');
+      }
     } catch (migError) {
       console.warn('Aviso ao aplicar migrações na tabela shops:', migError.message);
     }
