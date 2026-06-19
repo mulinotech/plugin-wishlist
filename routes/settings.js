@@ -194,13 +194,30 @@ router.get('/export', validateShop, async (req, res) => {
 // 4. Buscar a visão geral de clientes com seus respectivos favoritos
 router.get('/customers', validateShop, async (req, res) => {
   try {
-    const [rows] = await db.query(
-      `SELECT customer_hash, customer_identifier, product_id, product_name, product_image, product_price, created_at 
-       FROM favorites 
-       WHERE shop_id = ? 
-       ORDER BY customer_hash, created_at DESC`,
-      [req.shop.id]
-    );
+    let rows = [];
+    try {
+      [rows] = await db.query(
+        `SELECT customer_hash, customer_identifier, product_id, product_name, product_image, product_price, created_at 
+         FROM favorites 
+         WHERE shop_id = ? 
+         ORDER BY customer_hash, created_at DESC`,
+        [req.shop.id]
+      );
+    } catch (err) {
+      // Fallback caso a migração do banco ainda não tenha rodado na produção
+      if (err.code === 'ER_BAD_FIELD_ERROR' || err.message.includes('customer_identifier')) {
+        const [fallbackRows] = await db.query(
+          `SELECT customer_hash, product_id, product_name, product_image, product_price, created_at 
+           FROM favorites 
+           WHERE shop_id = ? 
+           ORDER BY customer_hash, created_at DESC`,
+          [req.shop.id]
+        );
+        rows = fallbackRows.map(r => ({ ...r, customer_identifier: null }));
+      } else {
+        throw err;
+      }
+    }
 
     // Agrupar itens por cliente (hash)
     const customersMap = {};
